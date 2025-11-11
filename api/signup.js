@@ -1,17 +1,21 @@
+// api/signup.js
 const fetch = require('node-fetch');
 
 const SHOPIFY_DOMAIN = process.env.SHOPIFY_DOMAIN;
 const ADMIN_API_TOKEN = process.env.SHOPIFY_ADMIN_API_TOKEN;
 const STOREFRONT_ACCESS_TOKEN = process.env.SHOPIFY_STOREFRONT_TOKEN;
 
-const ADMIN_API_URL = `https://${SHOPIFY_DOMAIN}/admin/api/2024-10/graphql.json`;
+// REST API pour créer le client avec mot de passe
+const ADMIN_REST_URL = `https://${SHOPIFY_DOMAIN}/admin/api/2024-10/customers.json`;
 const STOREFRONT_API_URL = `https://${SHOPIFY_DOMAIN}/api/2024-10/graphql.json`;
 
 module.exports = async (req, res) => {
+  // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
+  // Handle preflight
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
@@ -23,6 +27,7 @@ module.exports = async (req, res) => {
   try {
     const { email, password, firstName, lastName } = req.body;
 
+    // Validation
     if (!email || !password || !firstName || !lastName) {
       return res.status(400).json({ error: 'Tous les champs sont requis' });
     }
@@ -31,55 +36,37 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'Le mot de passe doit contenir au moins 5 caractères' });
     }
 
-    // Créer le client via Admin API (pas d'email de confirmation)
-    const createCustomerQuery = `
-      mutation customerCreate($input: CustomerInput!) {
-        customerCreate(input: $input) {
-          customer {
-            id
-            email
-            firstName
-            lastName
-          }
-          userErrors {
-            field
-            message
-          }
-        }
-      }
-    `;
-
-    const createResponse = await fetch(ADMIN_API_URL, {
+    // 1. Créer le client via REST API (avec mot de passe et email vérifié)
+    const createResponse = await fetch(ADMIN_REST_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-Shopify-Access-Token': ADMIN_API_TOKEN,
       },
       body: JSON.stringify({
-        query: createCustomerQuery,
-        variables: {
-          input: {
-            email,
-            firstName,
-            lastName,
-            password,
-            passwordConfirmation: password,
-            verifiedEmail: true,
-          }
+        customer: {
+          email,
+          first_name: firstName,
+          last_name: lastName,
+          password,
+          password_confirmation: password,
+          verified_email: true, // ✅ Pas d'email de confirmation
+          send_email_welcome: false, // Pas d'email de bienvenue
         }
       })
     });
 
     const createData = await createResponse.json();
 
-    if (createData.errors || createData.data.customerCreate.userErrors.length > 0) {
+    // Vérifier les erreurs
+    if (!createResponse.ok || createData.errors) {
       const errorMessage = createData.errors 
-        ? createData.errors[0].message 
-        : createData.data.customerCreate.userErrors[0].message;
+        ? Object.entries(createData.errors).map(([key, value]) => `${key}: ${value.join(', ')}`).join('; ')
+        : 'Erreur lors de la création du compte';
       return res.status(400).json({ error: errorMessage });
     }
 
-    // Connecter le client
+    // 2. Connecter le client via Storefront API pour obtenir un token
     const loginQuery = `
       mutation customerAccessTokenCreate($input: CustomerAccessTokenCreateInput!) {
         customerAccessTokenCreate(input: $input) {
@@ -95,6 +82,9 @@ module.exports = async (req, res) => {
         }
       }
     `;
+
+    // Petit délai pour que Shopify traite la création
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     const loginResponse = await fetch(STOREFRONT_API_URL, {
       method: 'POST',
@@ -113,12 +103,14 @@ module.exports = async (req, res) => {
     const loginData = await loginResponse.json();
 
     if (loginData.errors || loginData.data.customerAccessTokenCreate.customerUserErrors.length > 0) {
-      return res.status(400).json({ error: 'Compte créé mais erreur de connexion' });
+      return res.status(400).json({ 
+        error: 'Compte créé mais erreur de connexion. Essayez de vous connecter manuellement.' 
+      });
     }
 
     const accessToken = loginData.data.customerAccessTokenCreate.customerAccessToken.accessToken;
 
-    // Récupérer les infos du client
+    // 3. Récupérer les infos du client avec le token
     const customerQuery = `
       query getCustomer($customerAccessToken: String!) {
         customer(customerAccessToken: $customerAccessToken) {
@@ -149,6 +141,7 @@ module.exports = async (req, res) => {
     const customerData = await customerResponse.json();
     const customer = customerData.data.customer;
 
+    // Retourner les données du client avec le token
     return res.status(200).json({
       success: true,
       user: {
@@ -160,6 +153,9 @@ module.exports = async (req, res) => {
 
   } catch (error) {
     console.error('Error:', error);
-    return res.status(500).json({ error: 'Erreur serveur', details: error.message });
+    return res.status(500).json({ 
+      error: 'Erreur serveur', 
+      details: error.message 
+    });
   }
 };
