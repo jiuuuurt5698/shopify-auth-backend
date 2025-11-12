@@ -7,7 +7,7 @@ const SUPABASE_KEY = process.env.SUPABASE_KEY;
 const SHOPIFY_WEBHOOK_SECRET = process.env.SHOPIFY_WEBHOOK_SECRET;
 
 // Ratio de conversion : 1€ = 10 points (modifiable)
-const POINTS_PER_EURO = 10;
+const POINTS_PER_EURO = 0.5;
 
 // Initialiser Supabase
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
