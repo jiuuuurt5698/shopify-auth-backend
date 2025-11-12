@@ -53,23 +53,6 @@ module.exports = async (req, res) => {
       });
     }
 
-    // 2. Vérifier si le client a déjà un code actif
-    const { data: existingCode } = await supabase
-      .from('discount_codes')
-      .select('*')
-      .eq('customer_email', email)
-      .eq('status', 'active')
-      .gt('expires_at', new Date().toISOString())
-      .single();
-
-    if (existingCode) {
-      return res.status(400).json({ 
-        error: 'Vous avez déjà un code actif',
-        code: existingCode.code,
-        expires_at: existingCode.expires_at
-      });
-    }
-
     // 3. Calculer le montant de réduction
     const discountAmount = Math.floor((pointsToUse / POINTS_TO_EURO_RATIO) * 100) / 100;
 
