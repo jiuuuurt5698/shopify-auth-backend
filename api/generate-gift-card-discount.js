@@ -1,4 +1,3 @@
-// api/generate-gift-card-discount.js
 const { createClient } = require('@supabase/supabase-js');
 
 const supabase = createClient(
@@ -42,7 +41,6 @@ module.exports = async (req, res) => {
     }
 
     // Générer un code unique
-    const timestamp = Date.now();
     const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase();
     const code = `GIFT${palierNom.substring(0, 3).toUpperCase()}${randomPart}`;
 
@@ -157,3 +155,43 @@ module.exports = async (req, res) => {
     return res.status(500).json({ error: 'Erreur serveur' });
   }
 };
+```
+
+**Sauvegardez le fichier**
+
+---
+
+# **ÉTAPE 4 : Configurer les variables d'environnement**
+
+## **4.1 - Si votre backend est sur Vercel**
+
+1. **Allez sur** https://vercel.com/dashboard
+2. **Cliquez sur votre projet** `shopify-auth-backend-pi`
+3. **Settings** → **Environment Variables**
+4. **Ajoutez ces 4 variables une par une :**
+
+**Variable 1 :**
+```
+Name: SUPABASE_URL
+Value: [collez votre Project URL de l'étape 2.1]
+```
+**Cliquez sur "Add"**
+
+**Variable 2 :**
+```
+Name: SUPABASE_SERVICE_KEY
+Value: [collez votre service_role key de l'étape 2.1]
+```
+**Cliquez sur "Add"**
+
+**Variable 3 :**
+```
+Name: SHOPIFY_DOMAIN
+Value: f8bnjk-2f.myshopify.com
+```
+**Cliquez sur "Add"**
+
+**Variable 4 :**
+```
+Name: SHOPIFY_ACCESS_TOKEN
+Value: [collez votre Admin API token de l'étape 2.2]
