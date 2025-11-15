@@ -9,7 +9,6 @@ const SHOPIFY_DOMAIN = process.env.SHOPIFY_DOMAIN;
 const SHOPIFY_ACCESS_TOKEN = process.env.SHOPIFY_ACCESS_TOKEN;
 
 module.exports = async (req, res) => {
-  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -29,7 +28,6 @@ module.exports = async (req, res) => {
   }
 
   try {
-    // Vérifier que l'utilisateur existe
     const { data: userData, error: userError } = await supabase
       .from('customers')
       .select('*')
@@ -40,15 +38,12 @@ module.exports = async (req, res) => {
       return res.status(404).json({ error: 'Utilisateur non trouvé' });
     }
 
-    // Générer un code unique
     const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase();
     const code = `GIFT${palierNom.substring(0, 3).toUpperCase()}${randomPart}`;
 
-    // Calculer la date d'expiration (1 an)
     const expirationDate = new Date();
     expirationDate.setFullYear(expirationDate.getFullYear() + 1);
 
-    // Créer le code promo sur Shopify via l'API Admin
     const shopifyResponse = await fetch(
       `https://${SHOPIFY_DOMAIN}/admin/api/2024-10/price_rules.json`,
       {
@@ -84,7 +79,6 @@ module.exports = async (req, res) => {
     const priceRuleData = await shopifyResponse.json();
     const priceRuleId = priceRuleData.price_rule.id;
 
-    // Créer le discount code associé
     const discountCodeResponse = await fetch(
       `https://${SHOPIFY_DOMAIN}/admin/api/2024-10/price_rules/${priceRuleId}/discount_codes.json`,
       {
@@ -107,7 +101,6 @@ module.exports = async (req, res) => {
       return res.status(500).json({ error: 'Erreur lors de la création du code de réduction' });
     }
 
-    // Enregistrer dans Supabase
     const { data: discountData, error: discountError } = await supabase
       .from('discount_codes')
       .insert([
@@ -131,7 +124,6 @@ module.exports = async (req, res) => {
       return res.status(500).json({ error: 'Erreur lors de l\'enregistrement du code' });
     }
 
-    // Log de l'activité
     await supabase.from('loyalty_transactions').insert([
       {
         customer_email: email,
@@ -155,43 +147,3 @@ module.exports = async (req, res) => {
     return res.status(500).json({ error: 'Erreur serveur' });
   }
 };
-```
-
-**Sauvegardez le fichier**
-
----
-
-# **ÉTAPE 4 : Configurer les variables d'environnement**
-
-## **4.1 - Si votre backend est sur Vercel**
-
-1. **Allez sur** https://vercel.com/dashboard
-2. **Cliquez sur votre projet** `shopify-auth-backend-pi`
-3. **Settings** → **Environment Variables**
-4. **Ajoutez ces 4 variables une par une :**
-
-**Variable 1 :**
-```
-Name: SUPABASE_URL
-Value: [collez votre Project URL de l'étape 2.1]
-```
-**Cliquez sur "Add"**
-
-**Variable 2 :**
-```
-Name: SUPABASE_SERVICE_KEY
-Value: [collez votre service_role key de l'étape 2.1]
-```
-**Cliquez sur "Add"**
-
-**Variable 3 :**
-```
-Name: SHOPIFY_DOMAIN
-Value: f8bnjk-2f.myshopify.com
-```
-**Cliquez sur "Add"**
-
-**Variable 4 :**
-```
-Name: SHOPIFY_ACCESS_TOKEN
-Value: [collez votre Admin API token de l'étape 2.2]
