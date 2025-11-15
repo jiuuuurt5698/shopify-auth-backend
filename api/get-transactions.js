@@ -15,6 +15,7 @@ module.exports = async (req, res) => {
   }
 
   const { email, limit = 10 } = req.query;
+  const parsedLimit = Math.min(parseInt(limit) || 10, 100);
 
   if (!email) {
     return res.status(400).json({ error: 'Email requis' });
@@ -27,7 +28,7 @@ module.exports = async (req, res) => {
     }
 
     const response = await fetch(
-      `${SUPABASE_URL}/rest/v1/loyalty_transactions?customer_email=eq.${email}&order=created_at.desc&limit=${limit}`,
+      `${SUPABASE_URL}/rest/v1/loyalty_transactions?customer_email=eq.${email}&order=created_at.desc&limit=${parsedLimit}`,
       {
         headers: {
           'apikey': SUPABASE_KEY,
