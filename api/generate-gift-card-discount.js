@@ -1,5 +1,7 @@
 const SHOPIFY_DOMAIN = process.env.SHOPIFY_DOMAIN;
 const ADMIN_API_TOKEN = process.env.SHOPIFY_ADMIN_API_TOKEN;
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_KEY;
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -82,6 +84,29 @@ module.exports = async (req, res) => {
       const errorData = await discountCodeResponse.json();
       console.error('Shopify Discount Code Error:', errorData);
       return res.status(500).json({ error: 'Erreur lors de la création du code de réduction' });
+    }
+
+    if (SUPABASE_URL && SUPABASE_KEY) {
+      try {
+        await fetch(`${SUPABASE_URL}/rest/v1/loyalty_transactions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`,
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({
+            customer_email: email,
+            points: 0,
+            type: 'gift_card_redeemed',
+            description: `Carte cadeau ${palierNom} de ${montant}€ récupérée (${code})`,
+            created_at: new Date().toISOString(),
+          })
+        });
+      } catch (supabaseError) {
+        console.error('Supabase transaction error:', supabaseError);
+      }
     }
 
     return res.status(200).json({
