@@ -50,25 +50,3 @@ module.exports = async (req, res) => {
     return res.status(500).json({ error: 'Erreur serveur' });
   }
 };
-```
-
-## **Étape 3 - Commit**
-
-1. Scrollez en bas
-2. Dans "Commit message" :
-```
-Fix get-transactions to include gift cards
-```
-3. **Commit changes**
-
-✅ Vercel va redéployer (1-2 min)
-
----
-
-## **Étape 4 - Tester**
-
-**Attendez 2 minutes que Vercel redéploie**
-
-**Puis allez sur :**
-```
-https://shopify-auth-backend-pi.vercel.app/api/get-transactions?email=VOTRE_EMAIL&limit=10
