@@ -107,6 +107,26 @@ module.exports = async (req, res) => {
       } catch (supabaseError) {
         console.error('Supabase transaction error:', supabaseError);
       }
+    }  // Enregistrer que la carte a été récupérée
+    if (SUPABASE_URL && SUPABASE_KEY) {
+      try {
+        await fetch(`${SUPABASE_URL}/rest/v1/gift_cards_redeemed`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`,
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({
+            customer_email: email,
+            palier_name: palierNom,
+            redeemed_at: new Date().toISOString(),
+          })
+        });
+      } catch (error) {
+        console.error('Error saving redeemed gift card:', error);
+      }
     }
 
     return res.status(200).json({
