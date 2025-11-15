@@ -10,87 +10,17 @@ const POINTS_PER_EURO = 0.5;
 
 // Définition des paliers
 const TIERS = [
-  { name: 'Bronze', threshold: 0, bonus_euros: 0, bonus_points: 0 },
-  { name: 'Argent', threshold: 25, bonus_euros: 5, bonus_points: 10 },
-  { name: 'Or', threshold: 100, bonus_euros: 15, bonus_points: 30 },
-  { name: 'Diamant', threshold: 300, bonus_euros: 30, bonus_points: 60 },
-  { name: 'Maître', threshold: 750, bonus_euros: 75, bonus_points: 150 }
+  { name: 'Bronze', threshold: 0 },
+  { name: 'Argent', threshold: 25 },
+  { name: 'Or', threshold: 100 },
+  { name: 'Diamant', threshold: 300 },
+  { name: 'Maître', threshold: 750 }
 ];
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 function getCurrentTier(totalPoints) {
   return TIERS.filter(t => totalPoints >= t.threshold).pop() || TIERS[0];
-}
-
-async function checkAndAwardTierBonus(email, oldTotalPoints, newTotalPoints) {
-  const oldTier = getCurrentTier(oldTotalPoints);
-  const newTier = getCurrentTier(newTotalPoints);
-
-  if (newTier.name !== oldTier.name && newTier.bonus_points > 0) {
-    console.log(`🎉 ${email} a atteint le palier ${newTier.name} !`);
-
-    const { data: existingBonus } = await supabase
-      .from('tier_bonuses')
-      .select('*')
-      .eq('customer_email', email)
-      .eq('tier_name', newTier.name)
-      .single();
-
-    if (existingBonus) {
-      console.log(`ℹ️ Bonus ${newTier.name} déjà attribué`);
-      return null;
-    }
-
-    const { error: bonusError } = await supabase
-      .from('tier_bonuses')
-      .insert({
-        customer_email: email,
-        tier_name: newTier.name,
-        bonus_amount: newTier.bonus_euros,
-        bonus_points: newTier.bonus_points,
-        claimed: true,
-        claimed_at: new Date().toISOString()
-      });
-
-    if (bonusError) {
-      console.error('Erreur enregistrement bonus:', bonusError);
-      return null;
-    }
-
-    const { data: customer } = await supabase
-      .from('loyalty_points')
-      .select('*')
-      .eq('customer_email', email)
-      .single();
-
-    if (customer) {
-      await supabase
-        .from('loyalty_points')
-        .update({
-          points_balance: customer.points_balance + newTier.bonus_points
-        })
-        .eq('customer_email', email);
-
-      await supabase
-        .from('points_transactions')
-        .insert({
-          customer_email: email,
-          points: newTier.bonus_points,
-          transaction_type: 'tier_bonus',
-          description: `Bonus palier ${newTier.name} : +${newTier.bonus_euros}€ (${newTier.bonus_points} points)`,
-          metadata: {
-            tier: newTier.name,
-            bonus_euros: newTier.bonus_euros
-          }
-        });
-
-      console.log(`✅ Bonus ajouté : +${newTier.bonus_points} points`);
-      return newTier;
-    }
-  }
-
-  return null;
 }
 
 module.exports = async (req, res) => {
@@ -171,8 +101,6 @@ module.exports = async (req, res) => {
       console.log('✅ Nouveau client créé avec points initiaux');
     }
 
-    const tierBonus = await checkAndAwardTierBonus(order.email, oldTotalPoints, newTotalPoints);
-
     const { error: transactionError } = await supabase
       .from('points_transactions')
       .insert({
@@ -200,14 +128,6 @@ module.exports = async (req, res) => {
       order_amount: orderAmount,
       new_total_points: newTotalPoints
     };
-
-    if (tierBonus) {
-      response.tier_bonus = {
-        tier: tierBonus.name,
-        bonus_points: tierBonus.bonus_points,
-        bonus_euros: tierBonus.bonus_euros
-      };
-    }
 
     return res.status(200).json(response);
 
