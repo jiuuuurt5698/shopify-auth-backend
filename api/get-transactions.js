@@ -27,7 +27,19 @@ module.exports = async (req, res) => {
       return res.status(500).json({ error: 'Configuration serveur manquante' });
     }
 
-    const response = await fetch(
+    // Récupérer les transactions de points depuis points_transactions
+    const pointsResponse = await fetch(
+      `${SUPABASE_URL}/rest/v1/points_transactions?customer_email=eq.${email}&order=created_at.desc&limit=${parsedLimit}`,
+      {
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+        }
+      }
+    );
+
+    // Récupérer les transactions de cartes cadeaux depuis loyalty_transactions
+    const giftCardsResponse = await fetch(
       `${SUPABASE_URL}/rest/v1/loyalty_transactions?customer_email=eq.${email}&order=created_at.desc&limit=${parsedLimit}`,
       {
         headers: {
@@ -37,14 +49,23 @@ module.exports = async (req, res) => {
       }
     );
 
-    if (!response.ok) {
-      console.error('Supabase error:', response.status);
-      return res.status(500).json({ error: 'Erreur lors de la récupération des transactions' });
+    let pointsTransactions = [];
+    let giftCardTransactions = [];
+
+    if (pointsResponse.ok) {
+      pointsTransactions = await pointsResponse.json();
     }
 
-    const transactions = await response.json();
+    if (giftCardsResponse.ok) {
+      giftCardTransactions = await giftCardsResponse.json();
+    }
 
-    return res.status(200).json(transactions);
+    // Fusionner et trier par date
+    const allTransactions = [...pointsTransactions, ...giftCardTransactions]
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+      .slice(0, parsedLimit);
+
+    return res.status(200).json(allTransactions);
 
   } catch (error) {
     console.error('Error:', error);
