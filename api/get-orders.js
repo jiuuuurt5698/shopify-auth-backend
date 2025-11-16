@@ -1,15 +1,11 @@
 export default async function handler(req, res) {
     const { email } = req.query
-
     console.log("🔍 Demande de commandes reçue pour:", email)
-
     if (!email) {
         return res.status(400).json({ error: "Email required" })
     }
-
     const SHOPIFY_DOMAIN = "f8bnjk-2f.myshopify.com"
     const ADMIN_API_URL = `https://${SHOPIFY_DOMAIN}/admin/api/2024-10/graphql.json`
-
     const query = `
         query getCustomerOrders($email: String!) {
             customers(first: 1, query: $email) {
@@ -28,24 +24,25 @@ export default async function handler(req, res) {
                                         }
                                     }
                                     displayFulfillmentStatus
-fulfillments(first: 1) {
-    trackingInfo {
-        number
-        url
-    }
-}
-                                  lineItems(first: 10) {
-    edges {
-        node {
-            title
-            quantity
-            image {
-                url
-                altText
-            }
-        }
-    }
-}
+                                    fulfillments(first: 1) {
+                                        trackingInfo {
+                                            number
+                                            url
+                                        }
+                                    }
+                                    lineItems(first: 10) {
+                                        edges {
+                                            node {
+                                                title
+                                                quantity
+                                                variantTitle
+                                                image {
+                                                    url
+                                                    altText
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -54,10 +51,8 @@ fulfillments(first: 1) {
             }
         }
     `
-
     try {
         console.log("📡 Appel à Shopify Admin API...")
-
         const response = await fetch(ADMIN_API_URL, {
             method: "POST",
             headers: {
@@ -71,53 +66,49 @@ fulfillments(first: 1) {
                 },
             }),
         })
-
         const data = await response.json()
-
         console.log("📦 Réponse Shopify:", JSON.stringify(data, null, 2))
-
         if (data.errors) {
             console.error("❌ Erreur GraphQL:", data.errors)
             return res.status(400).json({ error: data.errors[0].message })
         }
-
         const customer = data.data?.customers?.edges[0]?.node
         
         if (!customer) {
             console.log("⚠️ Client introuvable")
             return res.status(200).json({ orders: [] })
         }
-
         const orders = customer.orders.edges.map(({ node }) => {
-    const tracking = node.fulfillments?.[0]?.trackingInfo?.[0]
-    
-    return {
-        id: node.name.replace("#", ""),
-        date: new Date(node.processedAt).toLocaleDateString("fr-FR", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-        }),
-        montant: parseFloat(node.totalPriceSet.shopMoney.amount),
-        currency: node.totalPriceSet.shopMoney.currencyCode,
-        statut:
-            node.displayFulfillmentStatus === "FULFILLED"
-                ? "Livré"
-                : node.displayFulfillmentStatus === "PARTIALLY_FULFILLED"
-                  ? "Partiellement livré"
-                  : "En cours",
-        produits: node.lineItems.edges
-            .map(({ node: item }) => `${item.title} (x${item.quantity})`)
-            .join(", "),
-        items: node.lineItems.edges.map(({ node: item }) => ({
-            title: item.title,
-            quantity: item.quantity,
-            image: item.image?.url || null,
-        })),
-        trackingNumber: tracking?.number || null,
-        trackingUrl: tracking?.url || null,
-    }
-})
+            const tracking = node.fulfillments?.[0]?.trackingInfo?.[0]
+            
+            return {
+                id: node.name.replace("#", ""),
+                date: new Date(node.processedAt).toLocaleDateString("fr-FR", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                }),
+                montant: parseFloat(node.totalPriceSet.shopMoney.amount),
+                currency: node.totalPriceSet.shopMoney.currencyCode,
+                statut:
+                    node.displayFulfillmentStatus === "FULFILLED"
+                        ? "Livré"
+                        : node.displayFulfillmentStatus === "PARTIALLY_FULFILLED"
+                          ? "Partiellement livré"
+                          : "En cours",
+                produits: node.lineItems.edges
+                    .map(({ node: item }) => `${item.title} (x${item.quantity})`)
+                    .join(", "),
+                items: node.lineItems.edges.map(({ node: item }) => ({
+                    title: item.title,
+                    quantity: item.quantity,
+                    image: item.image?.url || null,
+                    variant: item.variantTitle || "Default Title",
+                })),
+                trackingNumber: tracking?.number || null,
+                trackingUrl: tracking?.url || null,
+            }
+        })
         console.log("✅ Nombre de commandes trouvées:", orders.length)
         res.status(200).json({ orders })
     } catch (error) {
