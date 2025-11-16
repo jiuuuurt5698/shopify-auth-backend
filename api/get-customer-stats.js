@@ -78,7 +78,7 @@ export default async function handler(req, res) {
 
         // 2. Récupérer les transactions (codes promo + cartes cadeaux)
         const { data: transactions, error: transError } = await supabase
-            .from("points_transactions")
+            .from("points_transactions")  // ← CHANGEMENT ICI : "transactions" → "points_transactions"
             .select("*")
             .eq("customer_email", email)
             .order("created_at", { ascending: false })
