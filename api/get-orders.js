@@ -28,6 +28,12 @@ export default async function handler(req, res) {
                                         }
                                     }
                                     displayFulfillmentStatus
+fulfillments(first: 1) {
+    trackingInfo {
+        number
+        url
+    }
+}
                                   lineItems(first: 10) {
     edges {
         node {
@@ -82,30 +88,36 @@ export default async function handler(req, res) {
             return res.status(200).json({ orders: [] })
         }
 
-        const orders = customer.orders.edges.map(({ node }) => ({
-    id: node.name.replace("#", ""),
-    date: new Date(node.processedAt).toLocaleDateString("fr-FR", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-    }),
-    montant: parseFloat(node.totalPriceSet.shopMoney.amount),
-    currency: node.totalPriceSet.shopMoney.currencyCode,
-    statut:
-        node.displayFulfillmentStatus === "FULFILLED"
-            ? "Livré"
-            : node.displayFulfillmentStatus === "PARTIALLY_FULFILLED"
-              ? "Partiellement livré"
-              : "En cours",
-    produits: node.lineItems.edges
-        .map(({ node: item }) => `${item.title} (x${item.quantity})`)
-        .join(", "),
-    items: node.lineItems.edges.map(({ node: item }) => ({
-        title: item.title,
-        quantity: item.quantity,
-        image: item.image?.url || null,
-    })),
-}))
+        const orders = customer.orders.edges.map(({ node }) => {
+    const tracking = node.fulfillments?.[0]?.trackingInfo?.[0]
+    
+    return {
+        id: node.name.replace("#", ""),
+        date: new Date(node.processedAt).toLocaleDateString("fr-FR", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+        }),
+        montant: parseFloat(node.totalPriceSet.shopMoney.amount),
+        currency: node.totalPriceSet.shopMoney.currencyCode,
+        statut:
+            node.displayFulfillmentStatus === "FULFILLED"
+                ? "Livré"
+                : node.displayFulfillmentStatus === "PARTIALLY_FULFILLED"
+                  ? "Partiellement livré"
+                  : "En cours",
+        produits: node.lineItems.edges
+            .map(({ node: item }) => `${item.title} (x${item.quantity})`)
+            .join(", "),
+        items: node.lineItems.edges.map(({ node: item }) => ({
+            title: item.title,
+            quantity: item.quantity,
+            image: item.image?.url || null,
+        })),
+        trackingNumber: tracking?.number || null,
+        trackingUrl: tracking?.url || null,
+    }
+})
         console.log("✅ Nombre de commandes trouvées:", orders.length)
         res.status(200).json({ orders })
     } catch (error) {
