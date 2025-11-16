@@ -1,32 +1,41 @@
 export default async function handler(req, res) {
-    const { accessToken, first = 10 } = req.query
+    const { email } = req.query
 
-    console.log("🔍 Demande de commandes reçue")
-    console.log("🔑 Access Token:", accessToken ? "Présent" : "Absent")
+    console.log("🔍 Demande de commandes reçue pour:", email)
 
-    if (!accessToken) {
-        return res.status(400).json({ error: "Access token required" })
+    if (!email) {
+        return res.status(400).json({ error: "Email required" })
     }
 
+    // Utiliser l'Admin API avec ton token admin
     const SHOPIFY_DOMAIN = "f8bnjk-2f.myshopify.com"
-    const GRAPHQL_URL = `https://${SHOPIFY_DOMAIN}/api/2024-10/graphql.json`
+    const ADMIN_API_URL = `https://${SHOPIFY_DOMAIN}/admin/api/2024-10/graphql.json`
 
     const query = `
-        query getOrders($customerAccessToken: String!, $first: Int!) {
-            customer(customerAccessToken: $customerAccessToken) {
-                orders(first: $first, reverse: true, sortKey: PROCESSED_AT) {
-                    edges {
-                        node {
-                            id
-                            orderNumber
-                            processedAt
-                            totalPrice { amount currencyCode }
-                            fulfillmentStatus
-                            lineItems(first: 10) {
-                                edges {
-                                    node {
-                                        title
-                                        quantity
+        query getCustomerOrders($email: String!) {
+            customers(first: 1, query: $email) {
+                edges {
+                    node {
+                        orders(first: 50, reverse: true, sortKey: PROCESSED_AT) {
+                            edges {
+                                node {
+                                    id
+                                    name
+                                    processedAt
+                                    totalPriceSet {
+                                        shopMoney {
+                                            amount
+                                            currencyCode
+                                        }
+                                    }
+                                    displayFulfillmentStatus
+                                    lineItems(first: 10) {
+                                        edges {
+                                            node {
+                                                title
+                                                quantity
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -38,19 +47,18 @@ export default async function handler(req, res) {
     `
 
     try {
-        console.log("📡 Appel à Shopify GraphQL...")
+        console.log("📡 Appel à Shopify Admin API...")
 
-        const response = await fetch(GRAPHQL_URL, {
+        const response = await fetch(ADMIN_API_URL, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "X-Shopify-Storefront-Access-Token": process.env.SHOPIFY_STOREFRONT_TOKEN,
+                "X-Shopify-Access-Token": process.env.SHOPIFY_ADMIN_TOKEN,
             },
             body: JSON.stringify({
                 query,
                 variables: {
-                    customerAccessToken: accessToken,
-                    first: parseInt(first),
+                    email: `email:${email}`,
                 },
             }),
         })
@@ -64,24 +72,26 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: data.errors[0].message })
         }
 
-        if (!data.data?.customer) {
-            console.error("❌ Client introuvable")
-            return res.status(404).json({ error: "Customer not found" })
+        const customer = data.data?.customers?.edges[0]?.node
+        
+        if (!customer) {
+            console.log("⚠️ Client introuvable")
+            return res.status(200).json({ orders: [] })
         }
 
-        const orders = data.data.customer.orders.edges.map(({ node }) => ({
-            id: node.orderNumber,
+        const orders = customer.orders.edges.map(({ node }) => ({
+            id: node.name.replace("#", ""),
             date: new Date(node.processedAt).toLocaleDateString("fr-FR", {
                 day: "numeric",
                 month: "long",
                 year: "numeric",
             }),
-            montant: parseFloat(node.totalPrice.amount),
-            currency: node.totalPrice.currencyCode,
+            montant: parseFloat(node.totalPriceSet.shopMoney.amount),
+            currency: node.totalPriceSet.shopMoney.currencyCode,
             statut:
-                node.fulfillmentStatus === "FULFILLED"
+                node.displayFulfillmentStatus === "FULFILLED"
                     ? "Livré"
-                    : node.fulfillmentStatus === "PARTIAL"
+                    : node.displayFulfillmentStatus === "PARTIALLY_FULFILLED"
                       ? "Partiellement livré"
                       : "En cours",
             produits: node.lineItems.edges
