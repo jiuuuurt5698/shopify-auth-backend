@@ -7,7 +7,6 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: "Email required" })
     }
 
-    // Utiliser l'Admin API avec ton token admin
     const SHOPIFY_DOMAIN = "f8bnjk-2f.myshopify.com"
     const ADMIN_API_URL = `https://${SHOPIFY_DOMAIN}/admin/api/2024-10/graphql.json`
 
