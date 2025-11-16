@@ -9,7 +9,7 @@ export default async function handler(req, res) {
         const { createClient } = await import("@supabase/supabase-js")
         const supabase = createClient(
             process.env.SUPABASE_URL,
-            process.env.SUPABASE_KEY
+            process.env.SUPABASE_KEY  // ← Utilise SUPABASE_KEY
         )
 
         console.log("📊 Récupération des stats pour:", email)
@@ -78,7 +78,7 @@ export default async function handler(req, res) {
 
         // 2. Récupérer les transactions (codes promo + cartes cadeaux)
         const { data: transactions, error: transError } = await supabase
-            .from("points_transactions")  // ← CHANGEMENT ICI : "transactions" → "points_transactions"
+            .from("loyalty_transactions")  // ← CORRIGÉ : loyalty_transactions
             .select("*")
             .eq("customer_email", email)
             .order("created_at", { ascending: false })
@@ -126,7 +126,7 @@ export default async function handler(req, res) {
 
         // 3. Récupérer le total de points gagnés
         const { data: pointsData, error: pointsError } = await supabase
-            .from("customer_points")
+            .from("loyalty_points")  // ← CORRIGÉ : loyalty_points
             .select("total_points_earned")
             .eq("customer_email", email)
             .single()
