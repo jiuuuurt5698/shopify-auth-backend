@@ -28,14 +28,18 @@ export default async function handler(req, res) {
                                         }
                                     }
                                     displayFulfillmentStatus
-                                    lineItems(first: 10) {
-                                        edges {
-                                            node {
-                                                title
-                                                quantity
-                                            }
-                                        }
-                                    }
+                                  lineItems(first: 10) {
+    edges {
+        node {
+            title
+            quantity
+            image {
+                url
+                altText
+            }
+        }
+    }
+}
                                 }
                             }
                         }
@@ -79,25 +83,29 @@ export default async function handler(req, res) {
         }
 
         const orders = customer.orders.edges.map(({ node }) => ({
-            id: node.name.replace("#", ""),
-            date: new Date(node.processedAt).toLocaleDateString("fr-FR", {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-            }),
-            montant: parseFloat(node.totalPriceSet.shopMoney.amount),
-            currency: node.totalPriceSet.shopMoney.currencyCode,
-            statut:
-                node.displayFulfillmentStatus === "FULFILLED"
-                    ? "Livré"
-                    : node.displayFulfillmentStatus === "PARTIALLY_FULFILLED"
-                      ? "Partiellement livré"
-                      : "En cours",
-            produits: node.lineItems.edges
-                .map(({ node: item }) => `${item.title} (x${item.quantity})`)
-                .join(", "),
-        }))
-
+    id: node.name.replace("#", ""),
+    date: new Date(node.processedAt).toLocaleDateString("fr-FR", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+    }),
+    montant: parseFloat(node.totalPriceSet.shopMoney.amount),
+    currency: node.totalPriceSet.shopMoney.currencyCode,
+    statut:
+        node.displayFulfillmentStatus === "FULFILLED"
+            ? "Livré"
+            : node.displayFulfillmentStatus === "PARTIALLY_FULFILLED"
+              ? "Partiellement livré"
+              : "En cours",
+    produits: node.lineItems.edges
+        .map(({ node: item }) => `${item.title} (x${item.quantity})`)
+        .join(", "),
+    items: node.lineItems.edges.map(({ node: item }) => ({
+        title: item.title,
+        quantity: item.quantity,
+        image: item.image?.url || null,
+    })),
+}))
         console.log("✅ Nombre de commandes trouvées:", orders.length)
         res.status(200).json({ orders })
     } catch (error) {
