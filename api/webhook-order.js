@@ -6,7 +6,7 @@ const SUPABASE_KEY = process.env.SUPABASE_KEY;
 const SHOPIFY_WEBHOOK_SECRET = process.env.SHOPIFY_WEBHOOK_SECRET;
 
 // Ratio: 1€ = 0.5 points
-const points = Math.floor(order.total * 0.5)
+const POINTS_PER_EURO = 0.5;
 
 // Définition des paliers
 const TIERS = [
@@ -51,7 +51,7 @@ module.exports = async (req, res) => {
     }
 
     const orderAmount = parseFloat(order.total_price);
-    const pointsToAdd = Math.floor(orderAmount * POINTS_PER_EURO * 100) / 100;
+    const pointsToAdd = Math.floor(orderAmount * POINTS_PER_EURO);
 
     console.log(`💰 Montant: ${orderAmount}€ → ${pointsToAdd} points`);
 
@@ -59,9 +59,10 @@ module.exports = async (req, res) => {
       .from('loyalty_points')
       .select('*')
       .eq('customer_email', order.email)
-      .single();
+      .maybeSingle();
 
-    if (fetchError && fetchError.code !== 'PGRST116') {
+    if (fetchError) {
+      console.error('❌ Erreur Supabase points:', fetchError);
       throw fetchError;
     }
 
