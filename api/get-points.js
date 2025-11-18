@@ -27,10 +27,10 @@ module.exports = async (req, res) => {
 
     // Récupérer les points du client
     const { data, error } = await supabase
-      .from('loyalty_points')
-      .select('*')
-      .eq('customer_email', email)
-      .single();
+  .from('loyalty_points')
+  .select('*')
+  .eq('customer_email', email)
+  .maybeSingle() 
 
     if (error) {
       if (error.code === 'PGRST116') {
