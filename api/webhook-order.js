@@ -6,7 +6,7 @@ const SUPABASE_KEY = process.env.SUPABASE_KEY;
 const SHOPIFY_WEBHOOK_SECRET = process.env.SHOPIFY_WEBHOOK_SECRET;
 
 // Ratio: 1€ = 0.5 points
-const POINTS_PER_EURO = 0.5;
+const points = Math.floor(order.total * 0.5)
 
 // Définition des paliers
 const TIERS = [
