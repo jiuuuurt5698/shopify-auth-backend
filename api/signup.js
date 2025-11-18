@@ -1,9 +1,14 @@
 // api/signup.js
 const fetch = require('node-fetch');
+const { createClient } = require('@supabase/supabase-js');
 
 const SHOPIFY_DOMAIN = process.env.SHOPIFY_DOMAIN;
 const ADMIN_API_TOKEN = process.env.SHOPIFY_ADMIN_API_TOKEN;
 const STOREFRONT_ACCESS_TOKEN = process.env.SHOPIFY_STOREFRONT_TOKEN;
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_KEY;
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // REST API pour créer le client avec mot de passe
 const ADMIN_REST_URL = `https://${SHOPIFY_DOMAIN}/admin/api/2024-10/customers.json`;
@@ -64,6 +69,24 @@ module.exports = async (req, res) => {
         ? Object.entries(createData.errors).map(([key, value]) => `${key}: ${value.join(', ')}`).join('; ')
         : 'Erreur lors de la création du compte';
       return res.status(400).json({ error: errorMessage });
+    }
+
+    // ✅ NOUVEAU : Créer l'entrée de points dans Supabase
+    const { error: pointsError } = await supabase
+      .from('loyalty_points')
+      .insert({
+        customer_email: email,
+        points_balance: 0,
+        total_points_earned: 0,
+        total_points_spent: 0,
+        created_at: new Date().toISOString()
+      });
+
+    if (pointsError) {
+      console.error('❌ Erreur création points:', pointsError);
+      // Ne pas bloquer l'inscription si les points échouent
+    } else {
+      console.log('✅ Points initialisés pour:', email);
     }
 
     // 2. Connecter le client via Storefront API pour obtenir un token
