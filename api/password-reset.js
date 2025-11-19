@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 import crypto from 'crypto'
+import bcrypt from 'bcryptjs'  // ⬅️ AJOUTÉ ICI
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -191,6 +192,8 @@ export default async function handler(req, res) {
     }
 
     try {
+      console.log('🔍 Recherche du token:', token)
+
       // Vérifier le token
       const { data: tokenData, error: tokenError } = await supabase
         .from('password_reset_tokens')
@@ -198,46 +201,73 @@ export default async function handler(req, res) {
         .eq('token', token)
         .single()
 
+      console.log('📋 Token data:', tokenData)
+      console.log('❌ Token error:', tokenError)
+
       if (tokenError || !tokenData) {
-        return res.status(400).json({ error: 'Token invalide' })
+        console.error('Token invalide:', tokenError)
+        return res.status(400).json({ error: 'Token invalide ou introuvable' })
       }
 
       if (tokenData.used) {
-        return res.status(400).json({ error: 'Token déjà utilisé' })
+        console.error('Token déjà utilisé')
+        return res.status(400).json({ error: 'Ce lien a déjà été utilisé' })
       }
 
-      if (new Date(tokenData.expires_at) < new Date()) {
-        return res.status(400).json({ error: 'Token expiré' })
+      const now = new Date()
+      const expiresAt = new Date(tokenData.expires_at)
+      console.log('⏰ Now:', now)
+      console.log('⏰ Expires at:', expiresAt)
+
+      if (expiresAt < now) {
+        console.error('Token expiré')
+        return res.status(400).json({ error: 'Ce lien a expiré. Demandez un nouveau lien de réinitialisation.' })
       }
 
       // Hasher le nouveau mot de passe
-      const bcrypt = require('bcryptjs')
-      const hashedPassword = await bcrypt.hash(newPassword, 10)
+      console.log('🔐 Hachage du mot de passe...')
+      const hashedPassword = await bcrypt.hash(newPassword, 10)  // ⬅️ UTILISE bcrypt IMPORTÉ
+      console.log('✅ Mot de passe haché')
 
       // Mettre à jour le mot de passe
+      console.log('💾 Mise à jour du mot de passe pour customer_id:', tokenData.customer_id)
       const { error: updateError } = await supabase
         .from('customers')
         .update({ password: hashedPassword })
         .eq('id', tokenData.customer_id)
 
       if (updateError) {
-        console.error('Erreur lors de la mise à jour:', updateError)
-        return res.status(500).json({ error: 'Erreur serveur' })
+        console.error('❌ Erreur lors de la mise à jour du mot de passe:', updateError)
+        return res.status(500).json({ error: 'Erreur lors de la mise à jour du mot de passe' })
       }
 
+      console.log('✅ Mot de passe mis à jour')
+
       // Marquer le token comme utilisé
-      await supabase
+      const { error: markError } = await supabase
         .from('password_reset_tokens')
         .update({ used: true })
         .eq('token', token)
 
+      if (markError) {
+        console.error('⚠️ Erreur lors du marquage du token:', markError)
+        // Ne pas bloquer si ça échoue
+      }
+
+      console.log('✅ Token marqué comme utilisé')
+
       return res.status(200).json({
+        success: true,
         message: 'Mot de passe réinitialisé avec succès'
       })
 
     } catch (error) {
-      console.error('❌ Erreur globale:', error)
-      return res.status(500).json({ error: 'Erreur serveur' })
+      console.error('❌ Erreur globale lors du reset:', error)
+      console.error('Stack:', error.stack)
+      return res.status(500).json({ 
+        error: 'Erreur serveur',
+        details: error.message 
+      })
     }
   }
 
