@@ -50,28 +50,11 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Cet email est déjà utilisé' })
     }
 
-    // 1. CRÉER LE CLIENT DANS SHOPIFY
+    // 1. CRÉER LE CLIENT DANS SHOPIFY (REST API)
     console.log('🛍️ Création client Shopify...')
 
-    const shopifyQuery = `
-      mutation customerCreate($input: CustomerInput!) {
-        customerCreate(input: $input) {
-          customer {
-            id
-            email
-            firstName
-            lastName
-          }
-          userErrors {
-            field
-            message
-          }
-        }
-      }
-    `
-
     const shopifyResponse = await fetch(
-      `https://${SHOPIFY_DOMAIN}/admin/api/2024-10/graphql.json`,
+      `https://${SHOPIFY_DOMAIN}/admin/api/2024-10/customers.json`,
       {
         method: 'POST',
         headers: {
@@ -79,64 +62,40 @@ export default async function handler(req, res) {
           'X-Shopify-Access-Token': SHOPIFY_ADMIN_TOKEN,
         },
         body: JSON.stringify({
-          query: shopifyQuery,
-          variables: {
-            input: {
-              email,
-              firstName,
-              lastName,
-              password,
-            }
+          customer: {
+            email,
+            first_name: firstName,
+            last_name: lastName,
+            password,
+            password_confirmation: password,
+            verified_email: true,
+            send_email_welcome: false
           }
         })
       }
     )
 
     if (!shopifyResponse.ok) {
-      console.error('❌ Réponse Shopify non-OK:', shopifyResponse.status)
-      const errorText = await shopifyResponse.text()
-      console.error('❌ Détails:', errorText)
-      return res.status(500).json({ 
-        error: 'Erreur lors de la communication avec Shopify',
-        details: errorText
+      const errorData = await shopifyResponse.json()
+      console.error('❌ Erreur Shopify:', errorData)
+      
+      // Vérifier si c'est un doublon d'email
+      if (errorData.errors?.email) {
+        return res.status(400).json({ 
+          error: 'Cet email est déjà utilisé sur Shopify' 
+        })
+      }
+      
+      return res.status(400).json({ 
+        error: 'Erreur lors de la création du compte Shopify',
+        details: errorData.errors
       })
     }
 
     const shopifyData = await shopifyResponse.json()
-    console.log('📦 Réponse Shopify:', JSON.stringify(shopifyData, null, 2))
+    console.log('✅ Client Shopify créé:', shopifyData.customer.id)
 
-    // Vérifier les erreurs GraphQL
-    if (shopifyData.errors) {
-      console.error('❌ Erreurs GraphQL:', shopifyData.errors)
-      return res.status(400).json({ 
-        error: 'Erreur Shopify',
-        details: shopifyData.errors[0]?.message || 'Erreur inconnue'
-      })
-    }
-
-    // Vérifier les userErrors
-    if (shopifyData.data?.customerCreate?.userErrors?.length > 0) {
-      const userError = shopifyData.data.customerCreate.userErrors[0]
-      console.error('❌ User error:', userError)
-      return res.status(400).json({ 
-        error: userError.message || 'Erreur de validation',
-        field: userError.field
-      })
-    }
-
-    const shopifyCustomer = shopifyData.data?.customerCreate?.customer
-
-    if (!shopifyCustomer) {
-      console.error('❌ Pas de customer dans la réponse')
-      return res.status(500).json({ 
-        error: 'Erreur lors de la création du compte Shopify',
-        details: 'Réponse invalide'
-      })
-    }
-
-    // Extraire l'ID numérique de Shopify
-    const shopifyCustomerId = shopifyCustomer.id.split('/').pop()
-    console.log('✅ Client Shopify créé:', shopifyCustomerId)
+    const shopifyCustomerId = shopifyData.customer.id.toString()
 
     // 2. CRÉER LE CLIENT DANS SUPABASE
     console.log('💾 Création client Supabase...')
@@ -159,6 +118,23 @@ export default async function handler(req, res) {
 
     if (insertError) {
       console.error('❌ Erreur Supabase:', insertError)
+      
+      // Si erreur Supabase, supprimer le client Shopify pour éviter les incohérences
+      try {
+        await fetch(
+          `https://${SHOPIFY_DOMAIN}/admin/api/2024-10/customers/${shopifyCustomerId}.json`,
+          {
+            method: 'DELETE',
+            headers: {
+              'X-Shopify-Access-Token': SHOPIFY_ADMIN_TOKEN,
+            }
+          }
+        )
+        console.log('🗑️ Client Shopify supprimé (rollback)')
+      } catch (deleteError) {
+        console.error('❌ Erreur lors du rollback:', deleteError)
+      }
+      
       return res.status(500).json({ 
         error: 'Erreur lors de la création du compte',
         details: insertError.message
@@ -181,7 +157,6 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('💥 ERREUR CRITIQUE:', error)
-    console.error('Stack:', error.stack)
     return res.status(500).json({ 
       error: 'Erreur serveur',
       details: error.message
