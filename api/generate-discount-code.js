@@ -1,37 +1,40 @@
-const { createClient } = require('@supabase/supabase-js');
+import { createClient } from '@supabase/supabase-js'
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_KEY;
-const SHOPIFY_SHOP = process.env.SHOPIFY_SHOP;
-const SHOPIFY_ACCESS_TOKEN = process.env.SHOPIFY_ACCESS_TOKEN;
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_KEY
+)
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const SHOPIFY_SHOP = process.env.SHOPIFY_SHOP
+const SHOPIFY_ACCESS_TOKEN = process.env.SHOPIFY_ACCESS_TOKEN
 
 // Ratio: 10 points = 1€ de réduction
-const POINTS_TO_EURO_RATIO = 10;
+const POINTS_TO_EURO_RATIO = 10
 
-module.exports = async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+export default async function handler(req, res) {
+  // CORS headers
+  res.setHeader('Access-Control-Allow-Credentials', 'true')
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version')
 
   if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+    return res.status(200).end()
   }
 
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ error: 'Method not allowed' })
   }
 
   try {
-    const { email, pointsToUse } = req.body;
+    const { email, pointsToUse } = req.body
 
     if (!email || !pointsToUse) {
-      return res.status(400).json({ error: 'Email et points requis' });
+      return res.status(400).json({ error: 'Email et points requis' })
     }
 
     if (pointsToUse < 10) {
-      return res.status(400).json({ error: 'Minimum 10 points requis (1€)' });
+      return res.status(400).json({ error: 'Minimum 10 points requis (1€)' })
     }
 
     // 1. Vérifier le solde du client
@@ -39,10 +42,10 @@ module.exports = async (req, res) => {
       .from('loyalty_points')
       .select('*')
       .eq('customer_email', email)
-      .single();
+      .single()
 
     if (pointsError || !customerPoints) {
-      return res.status(404).json({ error: 'Client non trouvé' });
+      return res.status(404).json({ error: 'Client non trouvé' })
     }
 
     if (customerPoints.points_balance < pointsToUse) {
@@ -50,19 +53,19 @@ module.exports = async (req, res) => {
         error: 'Solde insuffisant',
         available: customerPoints.points_balance,
         requested: pointsToUse
-      });
+      })
     }
 
     // 3. Calculer le montant de réduction
-    const discountAmount = Math.floor((pointsToUse / POINTS_TO_EURO_RATIO) * 100) / 100;
+    const discountAmount = Math.floor((pointsToUse / POINTS_TO_EURO_RATIO) * 100) / 100
 
     // 4. Générer un code unique
-    const randomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-    const discountCode = `ALOHA${Math.floor(discountAmount)}-${randomCode}`;
+    const randomCode = Math.random().toString(36).substring(2, 8).toUpperCase()
+    const discountCode = `ALOHA${Math.floor(discountAmount)}-${randomCode}`
 
     // 5. Créer la règle de prix dans Shopify
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 90);
+    const expiresAt = new Date()
+    expiresAt.setDate(expiresAt.getDate() + 90)
 
     const priceRulePayload = {
       price_rule: {
@@ -79,7 +82,7 @@ module.exports = async (req, res) => {
         once_per_customer: true,
         usage_limit: 1
       }
-    };
+    }
 
     const priceRuleResponse = await fetch(
       `https://${SHOPIFY_SHOP}/admin/api/2024-10/price_rules.json`,
@@ -91,23 +94,23 @@ module.exports = async (req, res) => {
         },
         body: JSON.stringify(priceRulePayload)
       }
-    );
+    )
 
     if (!priceRuleResponse.ok) {
-      const errorText = await priceRuleResponse.text();
-      console.error('Shopify price rule error:', errorText);
-      throw new Error('Erreur création règle de prix Shopify');
+      const errorText = await priceRuleResponse.text()
+      console.error('Shopify price rule error:', errorText)
+      throw new Error('Erreur création règle de prix Shopify')
     }
 
-    const priceRuleData = await priceRuleResponse.json();
-    const priceRuleId = priceRuleData.price_rule.id;
+    const priceRuleData = await priceRuleResponse.json()
+    const priceRuleId = priceRuleData.price_rule.id
 
     // 6. Créer le code promo dans Shopify
     const discountCodePayload = {
       discount_code: {
         code: discountCode
       }
-    };
+    }
 
     const discountCodeResponse = await fetch(
       `https://${SHOPIFY_SHOP}/admin/api/2024-10/price_rules/${priceRuleId}/discount_codes.json`,
@@ -119,15 +122,15 @@ module.exports = async (req, res) => {
         },
         body: JSON.stringify(discountCodePayload)
       }
-    );
+    )
 
     if (!discountCodeResponse.ok) {
-      const errorText = await discountCodeResponse.text();
-      console.error('Shopify discount code error:', errorText);
-      throw new Error('Erreur création code promo Shopify');
+      const errorText = await discountCodeResponse.text()
+      console.error('Shopify discount code error:', errorText)
+      throw new Error('Erreur création code promo Shopify')
     }
 
-    const discountCodeData = await discountCodeResponse.json();
+    const discountCodeData = await discountCodeResponse.json()
 
     // 7. Enregistrer le code dans Supabase
     const { error: insertError } = await supabase
@@ -144,9 +147,9 @@ module.exports = async (req, res) => {
         metadata: {
           created_from: 'customer_dashboard'
         }
-      });
+      })
 
-    if (insertError) throw insertError;
+    if (insertError) throw insertError
 
     // 8. Déduire les points du solde (mais pas du total_points_earned!)
     const { error: updateError } = await supabase
@@ -155,9 +158,9 @@ module.exports = async (req, res) => {
         points_balance: customerPoints.points_balance - pointsToUse,
         total_points_spent: customerPoints.total_points_spent + pointsToUse
       })
-      .eq('customer_email', email);
+      .eq('customer_email', email)
 
-    if (updateError) throw updateError;
+    if (updateError) throw updateError
 
     // 9. Enregistrer la transaction
     await supabase
@@ -171,9 +174,9 @@ module.exports = async (req, res) => {
           discount_code: discountCode,
           discount_amount: discountAmount
         }
-      });
+      })
 
-    console.log(`✅ Code généré pour ${email}: ${discountCode} (${discountAmount}€)`);
+    console.log(`✅ Code généré pour ${email}: ${discountCode} (${discountAmount}€)`)
 
     return res.status(200).json({
       success: true,
@@ -182,13 +185,13 @@ module.exports = async (req, res) => {
       points_used: pointsToUse,
       expires_at: expiresAt.toISOString(),
       new_balance: customerPoints.points_balance - pointsToUse
-    });
+    })
 
   } catch (error) {
-    console.error('❌ Erreur génération code:', error);
+    console.error('❌ Erreur génération code:', error)
     return res.status(500).json({
       error: 'Erreur lors de la génération du code',
       details: error.message
-    });
+    })
   }
-};
+}
