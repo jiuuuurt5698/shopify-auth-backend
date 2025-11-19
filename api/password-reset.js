@@ -232,10 +232,9 @@ export default async function handler(req, res) {
       // Mettre à jour le mot de passe
       console.log('💾 Mise à jour du mot de passe pour customer_id:', tokenData.customer_id)
       const { error: updateError } = await supabase
-        .from('customers')
-        .update({ password: hashedPassword })
-        .eq('id', tokenData.customer_id)
-
+  .from('customers')
+  .update({ password_hash: hashedPassword })  // ✅ OU le nom correct de votre colonne
+  .eq('id', tokenData.customer_id)
       if (updateError) {
         console.error('❌ Erreur lors de la mise à jour du mot de passe:', updateError)
         return res.status(500).json({ error: 'Erreur lors de la mise à jour du mot de passe' })
