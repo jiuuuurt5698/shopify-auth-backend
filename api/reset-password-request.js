@@ -72,7 +72,7 @@ module.exports = async (req, res) => {
           'Authorization': `Bearer ${RESEND_API_KEY}`
         },
         body: JSON.stringify({
-          from: 'Aloha <noreply@votre-domaine.com>',
+          from: 'Aloha <noreply@contact.aloha-cbd.fr>',
           to: email,
           subject: 'Réinitialisation de votre mot de passe',
           html: `
