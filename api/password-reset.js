@@ -67,39 +67,42 @@ export default async function handler(req, res) {
       }
 
       // Envoyer l'email avec Resend
-      const resetUrl = `https://aloha-cbd.fr/mdp-oublie?token=${resetToken}`
+const resetUrl = `https://aloha-cbd.fr/mdp-oublie?token=${resetToken}`
 
-      try {
-        await resend.emails.send({
-          from: 'Aloha <noreply@noreply.aloha-cbd.fr>',
-          to: email,
-          subject: 'Réinitialisation de votre mot de passe',
-          template: 'password-reset',
-          data: {
-            firstName: user.first_name,
-            resetUrl: resetUrl
-          }
-        })
-
-        console.log('✅ Email envoyé avec succès à:', email)
-      } catch (emailError) {
-        console.error('❌ Erreur lors de l\'envoi de l\'email:', emailError)
-        console.error('Détails:', JSON.stringify(emailError, null, 2))
-        return res.status(500).json({ 
-          error: 'Erreur lors de l\'envoi de l\'email',
-          details: emailError.message 
-        })
-      }
-
-      return res.status(200).json({
-        message: 'Email de réinitialisation envoyé'
-      })
-
-    } catch (error) {
-      console.error('Erreur globale:', error)
-      return res.status(500).json({ error: 'Erreur serveur' })
+try {
+  const { data, error } = await resend.emails.send({
+    from: 'Aloha <noreply@noreply.aloha-cbd.fr>',
+    to: email,
+    subject: 'Réinitialisation de votre mot de passe',
+    template_id: '0a7ae2b5-6ed4-4338-a873-8c9c186b3d74',  // ⬅️ VOTRE ID
+    template_data: {
+      firstName: user.first_name,
+      resetUrl: resetUrl
     }
+  })
+
+  if (error) {
+    console.error('❌ Erreur Resend:', error)
+    console.error('Détails:', JSON.stringify(error, null, 2))
+    return res.status(500).json({ 
+      error: 'Erreur lors de l\'envoi de l\'email',
+      details: error.message 
+    })
   }
+
+  console.log('✅ Email envoyé avec succès à:', email)
+  console.log('✅ Resend response:', data)
+
+  return res.status(200).json({
+    message: 'Email de réinitialisation envoyé'
+  })
+
+} catch (emailError) {
+  console.error('❌ Erreur globale:', emailError)
+  return res.status(500).json({ 
+    error: 'Erreur serveur'
+  })
+}
 
   // ============================================
   // ACTION 2 : RÉINITIALISATION DU MOT DE PASSE
