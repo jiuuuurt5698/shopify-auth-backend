@@ -91,63 +91,68 @@ export default async function handler(req, res) {
       ? new Date(orders[orders.length - 1].node.createdAt)
       : null
 
-    // 2. Récupérer les transactions (codes promo + cartes cadeaux)
-    const { data: transactions, error: transError } = await supabase
-      .from("loyalty_transactions")
-      .select("*")
-      .eq("customer_email", email)
-      .order("created_at", { ascending: false })
+    // 2. Récupérer les CODES PROMO utilisés (via points_transactions)
+    const { data: pointsRedemptions, error: pointsError } = await supabase
+      .from('points_transactions')
+      .select('*')
+      .eq('customer_email', email)
+      .eq('transaction_type', 'redemption')
 
-    if (transError) {
-      console.error("❌ Erreur Supabase transactions:", transError)
+    if (pointsError) {
+      console.error("❌ Erreur points_transactions:", pointsError)
     }
 
-    console.log("📋 Transactions trouvées:", transactions?.length || 0)
+    console.log("🎫 Codes promo utilisés:", pointsRedemptions?.length || 0)
 
-    // Calcul des économies depuis les CODES PROMO (points dépensés)
-    const codesPromoTransactions = transactions?.filter(t => 
-      t.type === "discount_code_generated" && t.points < 0
-    ) || []
-    
-    const savingsFromCodes = codesPromoTransactions.reduce((sum, t) => {
-      // Les points sont négatifs, donc on prend la valeur absolue
-      // 10 points = 1€, donc on divise par 10
-      return sum + Math.abs(t.points) / 10
-    }, 0)
+    // Calculer les économies depuis les points échangés
+    const savingsFromCodes = pointsRedemptions?.reduce((sum, t) => {
+      // Points sont négatifs (ex: -100), on prend la valeur absolue
+      // 10 points = 1€
+      const euros = Math.abs(t.points) / 10
+      console.log(`💸 Code promo: ${Math.abs(t.points)} points = ${euros}€`)
+      return sum + euros
+    }, 0) || 0
 
-    console.log("🎫 Codes promo utilisés:", codesPromoTransactions.length)
     console.log("💸 Économies codes promo:", savingsFromCodes)
 
-    // Calcul des économies depuis les CARTES CADEAUX
-    const giftCardsTransactions = transactions?.filter(t => 
-      t.type === "gift_card_redeemed"
-    ) || []
+    // 3. Récupérer les CARTES CADEAUX (via loyalty_transactions)
+    const { data: giftCardsTransactions, error: giftCardsError } = await supabase
+      .from('loyalty_transactions')
+      .select('*')
+      .eq('customer_email', email)
+      .eq('type', 'gift_card_redeemed')
+
+    if (giftCardsError) {
+      console.error("❌ Erreur gift cards:", giftCardsError)
+    }
+
+    console.log("🎁 Cartes cadeaux récupérées:", giftCardsTransactions?.length || 0)
 
     // Récupérer les montants réels des cartes cadeaux depuis leur description
-    const savingsFromGiftCards = giftCardsTransactions.reduce((sum, t) => {
+    const savingsFromGiftCards = giftCardsTransactions?.reduce((sum, t) => {
       // Extraire le montant depuis la description
       // Format: "Carte cadeau Argent de 10€ récupérée (CODE)"
-      const match = t.description.match(/de (\d+)€/)
+      const match = t.description?.match(/de (\d+)€/)
       const amount = match ? parseFloat(match[1]) : 0
+      console.log(`🎁 Carte cadeau: ${amount}€`)
       return sum + amount
-    }, 0)
+    }, 0) || 0
 
-    console.log("🎁 Cartes cadeaux récupérées:", giftCardsTransactions.length)
     console.log("💸 Économies cartes cadeaux:", savingsFromGiftCards)
 
     const totalSavings = savingsFromCodes + savingsFromGiftCards
 
     console.log("💰 TOTAL ÉCONOMIES:", totalSavings)
 
-    // 3. Récupérer le total de points gagnés
-    const { data: pointsData, error: pointsError } = await supabase
-      .from("loyalty_points")
-      .select("total_points_earned")
-      .eq("customer_email", email)
+    // 4. Récupérer le total de points gagnés
+    const { data: pointsData, error: loyaltyPointsError } = await supabase
+      .from('loyalty_points')
+      .select('total_points_earned')
+      .eq('customer_email', email)
       .single()
 
-    if (pointsError) {
-      console.error("❌ Erreur Supabase points:", pointsError)
+    if (loyaltyPointsError) {
+      console.error("❌ Erreur loyalty_points:", loyaltyPointsError)
     }
 
     console.log("⭐ Points gagnés:", pointsData?.total_points_earned || 0)
@@ -157,8 +162,8 @@ export default async function handler(req, res) {
       orderCount,
       averageBasket: averageBasket.toFixed(2),
       totalSavings: totalSavings.toFixed(2),
-      codesPromoCount: codesPromoTransactions.length,
-      giftCardsCount: giftCardsTransactions.length,
+      codesPromoCount: pointsRedemptions?.length || 0,
+      giftCardsCount: giftCardsTransactions?.length || 0,
       totalPointsEarned: pointsData?.total_points_earned || 0,
       memberSince: firstOrderDate 
         ? firstOrderDate.toLocaleDateString("fr-FR", {
