@@ -66,16 +66,15 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'Erreur serveur' })
       }
 
-     // Envoyer l'email avec Resend
-const resetUrl = `https://aloha-cbd.fr/mdp-oublie?token=${resetToken}`
+      // Envoyer l'email avec Resend
+      const resetUrl = `https://aloha-cbd.fr/mdp-oublie?token=${resetToken}`
 
-try {
-  const { data, error } = await resend.emails.send({
-    from: 'Aloha <noreply@noreply.aloha-cbd.fr>',
-    to: email,
-    subject: 'Réinitialisation de votre mot de passe',
-    html: `
-<!DOCTYPE html>
+      try {
+        const { data, error } = await resend.emails.send({
+          from: 'Aloha <noreply@noreply.aloha-cbd.fr>',
+          to: email,
+          subject: 'Réinitialisation de votre mot de passe',
+          html: `<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
@@ -86,31 +85,23 @@ try {
     <tr>
       <td align="center" style="padding: 40px 20px;">
         <table role="presentation" style="max-width: 600px; border-collapse: collapse; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
-          
-          <!-- Header -->
           <tr>
             <td style="background: linear-gradient(135deg, #22192E 0%, #3d2f52 100%); padding: 40px 30px; text-align: center;">
               <h1 style="margin: 0 0 20px 0; color: #ffffff; font-size: 36px; font-weight: 700;">Aloha</h1>
               <h2 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700;">Réinitialisation de mot de passe</h2>
             </td>
           </tr>
-          
-          <!-- Body -->
           <tr>
             <td style="padding: 40px 30px;">
               <p style="margin: 0 0 20px 0; color: #22192E; font-size: 16px;">
                 Bonjour <strong>${user.first_name}</strong>,
               </p>
-              
               <p style="margin: 0 0 20px 0; color: #718096; font-size: 15px; line-height: 1.6;">
                 Vous avez demandé à réinitialiser le mot de passe de votre compte Aloha.
               </p>
-              
               <p style="margin: 0 0 30px 0; color: #718096; font-size: 15px; line-height: 1.6;">
                 Cliquez sur le bouton ci-dessous pour créer un nouveau mot de passe :
               </p>
-              
-              <!-- Button -->
               <table role="presentation" style="width: 100%; border-collapse: collapse;">
                 <tr>
                   <td align="center" style="padding: 20px 0;">
@@ -120,15 +111,12 @@ try {
                   </td>
                 </tr>
               </table>
-              
               <p style="margin: 20px 0 0 0; color: #718096; font-size: 13px; text-align: center;">
                 Ou copiez ce lien :
               </p>
               <p style="margin: 10px 0 30px 0; color: #BC6170; font-size: 13px; text-align: center; word-break: break-all;">
                 ${resetUrl}
               </p>
-              
-              <!-- Warning -->
               <table role="presentation" style="width: 100%; background: #FEF3C7; border-radius: 10px;">
                 <tr>
                   <td style="padding: 16px;">
@@ -143,8 +131,6 @@ try {
               </table>
             </td>
           </tr>
-          
-          <!-- Footer -->
           <tr>
             <td style="background: #EFEDEE; padding: 30px; text-align: center;">
               <p style="margin: 0 0 16px 0; color: #22192E; font-size: 14px; font-weight: 600;">
@@ -162,38 +148,39 @@ try {
               </p>
             </td>
           </tr>
-          
         </table>
       </td>
     </tr>
   </table>
 </body>
-</html>
-    `
-  })
+</html>`
+        })
 
-  if (error) {
-    console.error('❌ Erreur Resend:', error)
-    console.error('Détails:', JSON.stringify(error, null, 2))
-    return res.status(500).json({ 
-      error: 'Erreur lors de l\'envoi de l\'email',
-      details: error.message 
-    })
+        if (error) {
+          console.error('❌ Erreur Resend:', error)
+          return res.status(500).json({ 
+            error: 'Erreur lors de l\'envoi de l\'email'
+          })
+        }
+
+        console.log('✅ Email envoyé avec succès à:', email)
+
+      } catch (emailError) {
+        console.error('❌ Erreur catch email:', emailError)
+        return res.status(500).json({ 
+          error: 'Erreur lors de l\'envoi de l\'email'
+        })
+      }
+
+      return res.status(200).json({
+        message: 'Email de réinitialisation envoyé'
+      })
+
+    } catch (error) {
+      console.error('❌ Erreur globale:', error)
+      return res.status(500).json({ error: 'Erreur serveur' })
+    }
   }
-
-  console.log('✅ Email envoyé avec succès à:', email)
-  console.log('✅ Resend response:', data)
-
-} catch (emailError) {
-  console.error('❌ Erreur catch email:', emailError)
-  return res.status(500).json({ 
-    error: 'Erreur lors de l\'envoi de l\'email'
-  })
-}
-
-return res.status(200).json({
-  message: 'Email de réinitialisation envoyé'
-})
 
   // ============================================
   // ACTION 2 : RÉINITIALISATION DU MOT DE PASSE
