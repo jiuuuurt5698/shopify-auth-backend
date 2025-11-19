@@ -59,7 +59,7 @@ module.exports = async (req, res) => {
 
       // Envoyer l'email
       if (RESEND_API_KEY) {
-        const resetUrl = `https://aloha-cbd.fr/reset-password?token=${resetToken}`;
+        const resetUrl = `https://aloha-cbd.fr/mdp-oublie?token=${resetToken}`;
         
         await fetch('https://api.resend.com/emails', {
           method: 'POST',
