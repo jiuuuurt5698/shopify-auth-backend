@@ -1,33 +1,35 @@
-const SHOPIFY_DOMAIN = process.env.SHOPIFY_DOMAIN;
-const ADMIN_API_TOKEN = process.env.SHOPIFY_ADMIN_API_TOKEN;
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_KEY;
+const SHOPIFY_DOMAIN = process.env.SHOPIFY_DOMAIN
+const ADMIN_API_TOKEN = process.env.SHOPIFY_ADMIN_API_TOKEN
+const SUPABASE_URL = process.env.SUPABASE_URL
+const SUPABASE_KEY = process.env.SUPABASE_KEY
 
-module.exports = async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+export default async function handler(req, res) {
+  // CORS headers
+  res.setHeader('Access-Control-Allow-Credentials', 'true')
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version')
 
   if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+    return res.status(200).end()
   }
 
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const { email, palierNom, montant } = req.body;
+  const { email, palierNom, montant } = req.body
 
   if (!email || !palierNom || !montant) {
-    return res.status(400).json({ error: 'Email, palierNom et montant requis' });
+    return res.status(400).json({ error: 'Email, palierNom et montant requis' })
   }
 
   try {
-    const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase();
-    const code = `GIFT${palierNom.substring(0, 3).toUpperCase()}${randomPart}`;
+    const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase()
+    const code = `GIFT${palierNom.substring(0, 3).toUpperCase()}${randomPart}`
 
-    const expirationDate = new Date();
-    expirationDate.setFullYear(expirationDate.getFullYear() + 1);
+    const expirationDate = new Date()
+    expirationDate.setFullYear(expirationDate.getFullYear() + 1)
 
     const shopifyResponse = await fetch(
       `https://${SHOPIFY_DOMAIN}/admin/api/2024-10/price_rules.json`,
@@ -53,16 +55,16 @@ module.exports = async (req, res) => {
           },
         }),
       }
-    );
+    )
 
     if (!shopifyResponse.ok) {
-      const errorData = await shopifyResponse.json();
-      console.error('Shopify API Error:', errorData);
-      return res.status(500).json({ error: 'Erreur lors de la création du code promo sur Shopify' });
+      const errorData = await shopifyResponse.json()
+      console.error('Shopify API Error:', errorData)
+      return res.status(500).json({ error: 'Erreur lors de la création du code promo sur Shopify' })
     }
 
-    const priceRuleData = await shopifyResponse.json();
-    const priceRuleId = priceRuleData.price_rule.id;
+    const priceRuleData = await shopifyResponse.json()
+    const priceRuleId = priceRuleData.price_rule.id
 
     const discountCodeResponse = await fetch(
       `https://${SHOPIFY_DOMAIN}/admin/api/2024-10/price_rules/${priceRuleId}/discount_codes.json`,
@@ -78,14 +80,15 @@ module.exports = async (req, res) => {
           },
         }),
       }
-    );
+    )
 
     if (!discountCodeResponse.ok) {
-      const errorData = await discountCodeResponse.json();
-      console.error('Shopify Discount Code Error:', errorData);
-      return res.status(500).json({ error: 'Erreur lors de la création du code de réduction' });
+      const errorData = await discountCodeResponse.json()
+      console.error('Shopify Discount Code Error:', errorData)
+      return res.status(500).json({ error: 'Erreur lors de la création du code de réduction' })
     }
 
+    // Enregistrer la transaction dans Supabase
     if (SUPABASE_URL && SUPABASE_KEY) {
       try {
         await fetch(`${SUPABASE_URL}/rest/v1/loyalty_transactions`, {
@@ -103,11 +106,13 @@ module.exports = async (req, res) => {
             description: `Carte cadeau ${palierNom} de ${montant}€ récupérée (${code})`,
             created_at: new Date().toISOString(),
           })
-        });
+        })
       } catch (supabaseError) {
-        console.error('Supabase transaction error:', supabaseError);
+        console.error('Supabase transaction error:', supabaseError)
       }
-    }  // Enregistrer que la carte a été récupérée
+    }
+
+    // Enregistrer que la carte a été récupérée
     if (SUPABASE_URL && SUPABASE_KEY) {
       try {
         await fetch(`${SUPABASE_URL}/rest/v1/gift_cards_redeemed`, {
@@ -123,9 +128,9 @@ module.exports = async (req, res) => {
             palier_name: palierNom,
             redeemed_at: new Date().toISOString(),
           })
-        });
+        })
       } catch (error) {
-        console.error('Error saving redeemed gift card:', error);
+        console.error('Error saving redeemed gift card:', error)
       }
     }
 
@@ -135,10 +140,10 @@ module.exports = async (req, res) => {
       discount_amount: montant,
       expires_at: expirationDate.toISOString(),
       palier: palierNom,
-    });
+    })
 
   } catch (error) {
-    console.error('Error:', error);
-    return res.status(500).json({ error: 'Erreur serveur' });
+    console.error('Error:', error)
+    return res.status(500).json({ error: 'Erreur serveur' })
   }
-};
+}
