@@ -68,28 +68,30 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'Erreur serveur' })
       }
 
-      // Envoyer l'email avec Resend
-      const resetUrl = `https://aloha-cbd.fr/mdp-oublie?token=${resetToken}`
+     // Envoyer l'email avec Resend
+const resetUrl = `https://aloha-cbd.fr/mdp-oublie?token=${resetToken}`
 
-      try {
-        await resend.emails.send({
-  from: 'Aloha <noreply@noreply.aloha-cbd.fr>',
-  to: email,
-  subject: 'Réinitialisation de votre mot de passe',
-  react: PasswordResetEmail({
-    firstName: user.first_name,
-    resetUrl: resetUrl
-  })
-})
-      } catch (emailError) {
-        console.error('Error sending email:', emailError)
-        return res.status(500).json({ error: 'Erreur lors de l\'envoi de l\'email' })
-      }
-
-      return res.status(200).json({ 
-        message: 'Email envoyé avec succès' 
-      })
+try {
+  await resend.emails.send({
+    from: 'Aloha <noreply@noreply.aloha-cbd.fr>',
+    to: email,
+    subject: 'Réinitialisation de votre mot de passe',
+    template: 'password-reset',
+    data: {
+      firstName: user.first_name,
+      resetUrl: resetUrl
     }
+  })
+  
+  console.log('✅ Email envoyé avec succès à:', email)
+} catch (emailError) {
+  console.error('❌ Erreur lors de l\'envoi de l\'email:', emailError)
+  console.error('Détails:', JSON.stringify(emailError, null, 2))
+  return res.status(500).json({ 
+    error: 'Erreur lors de l\'envoi de l\'email',
+    details: emailError.message 
+  })
+}
 
     // ACTION 2 : RÉINITIALISATION DU MOT DE PASSE
     if (action === 'reset') {
