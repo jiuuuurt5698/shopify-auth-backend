@@ -157,21 +157,23 @@ export default async function handler(req, res) {
 
     console.log("⭐ Points gagnés:", pointsData?.total_points_earned || 0)
 
-    const stats = {
-      totalSpent: totalSpent.toFixed(2),
-      orderCount,
-      averageBasket: averageBasket.toFixed(2),
-      totalSavings: totalSavings.toFixed(2),
-      codesPromoCount: pointsRedemptions?.length || 0,
-      giftCardsCount: giftCardsTransactions?.length || 0,
-      totalPointsEarned: pointsData?.total_points_earned || 0,
-      memberSince: firstOrderDate 
-        ? firstOrderDate.toLocaleDateString("fr-FR", {
-          month: "long",
-          year: "numeric"
-        })
-        : "Nouveau membre"
-    }
+   const stats = {
+  totalSpent: totalSpent.toFixed(2),
+  orderCount,
+  averageBasket: averageBasket.toFixed(2),
+  totalSavings: totalSavings.toFixed(2),
+  savingsFromCodes: savingsFromCodes.toFixed(2),        // ⬅️ DOIT ÊTRE LÀ
+  savingsFromGiftCards: savingsFromGiftCards.toFixed(2), // ⬅️ DOIT ÊTRE LÀ
+  codesPromoCount: pointsRedemptions?.length || 0,
+  giftCardsCount: giftCardsTransactions?.length || 0,
+  totalPointsEarned: pointsData?.total_points_earned || 0,
+  memberSince: firstOrderDate 
+    ? firstOrderDate.toLocaleDateString("fr-FR", {
+      month: "long",
+      year: "numeric"
+    })
+    : "Nouveau membre"
+}
 
     console.log("✅ Stats finales:", stats)
 
