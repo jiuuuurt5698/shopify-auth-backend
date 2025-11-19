@@ -73,20 +73,14 @@ export default async function handler(req, res) {
 
       try {
         await resend.emails.send({
-          from: 'Aloha <noreply@noreply.aloha-cbd.fr>',
-          to: email,
-          subject: 'Réinitialisation de votre mot de passe',
-          html: `
-            <h2>Réinitialisation de mot de passe</h2>
-            <p>Bonjour ${user.first_name},</p>
-            <p>Vous avez demandé à réinitialiser votre mot de passe.</p>
-            <p>Cliquez sur le lien ci-dessous pour créer un nouveau mot de passe :</p>
-            <p><a href="${resetUrl}" style="background: #22192E; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block;">Réinitialiser mon mot de passe</a></p>
-            <p>Ce lien est valable pendant 1 heure.</p>
-            <p>Si vous n'avez pas demandé cette réinitialisation, ignorez cet email.</p>
-            <p>L'équipe Aloha</p>
-          `
-        })
+  from: 'Aloha <noreply@noreply.aloha-cbd.fr>',
+  to: email,
+  subject: 'Réinitialisation de votre mot de passe',
+  react: PasswordResetEmail({
+    firstName: user.first_name,
+    resetUrl: resetUrl
+  })
+})
       } catch (emailError) {
         console.error('Error sending email:', emailError)
         return res.status(500).json({ error: 'Erreur lors de l\'envoi de l\'email' })
