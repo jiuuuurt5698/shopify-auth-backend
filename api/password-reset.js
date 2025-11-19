@@ -1,148 +1,162 @@
-const { createClient } = require('@supabase/supabase-js');
-const crypto = require('crypto');
-const bcrypt = require('bcryptjs');
+import { createClient } from '@supabase/supabase-js'
+import { Resend } from 'resend'
+import bcrypt from 'bcryptjs'
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_KEY;
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_KEY
+)
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY)
 
-module.exports = async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+export default async function handler(req, res) {
+  // CORS headers
+  res.setHeader('Access-Control-Allow-Credentials', 'true')
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
 
   if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+    return res.status(200).end()
   }
 
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ error: 'Method not allowed' })
   }
 
   try {
-    const { action, email, token, newPassword } = req.body;
+    const { action, email, token, newPassword } = req.body
 
-    // ACTION 1 : Demander un reset (envoyer l'email)
+    // ACTION 1 : DEMANDE DE RÉINITIALISATION
     if (action === 'request') {
       if (!email) {
-        return res.status(400).json({ error: 'Email requis' });
+        return res.status(400).json({ error: 'Email requis' })
       }
 
       // Vérifier si l'utilisateur existe
-      const { data: user } = await supabase
+      const { data: user, error: userError } = await supabase
         .from('customers')
-        .select('*')
+        .select('id, email, first_name')
         .eq('email', email)
-        .single();
+        .single()
 
-      if (!user) {
-        // Pour la sécurité, on retourne toujours success
+      if (userError || !user) {
+        // Par sécurité, on renvoie toujours "OK" même si l'email n'existe pas
         return res.status(200).json({ 
-          success: true, 
-          message: 'Si cet email existe, un lien de réinitialisation a été envoyé' 
-        });
+          message: 'Si ce compte existe, un email a été envoyé' 
+        })
       }
 
-      // Générer un token
-      const resetToken = crypto.randomBytes(32).toString('hex');
-      const expiresAt = new Date(Date.now() + 3600000).toISOString(); // 1h
+      // Générer un token de réinitialisation
+      const resetToken = Array.from({ length: 32 }, () => 
+        Math.floor(Math.random() * 16).toString(16)
+      ).join('')
+      
+      const expiresAt = new Date(Date.now() + 3600000).toISOString() // 1 heure
 
-      // Sauvegarder le token
-      await supabase.from('password_reset_tokens').insert({
-        email: email,
-        token: resetToken,
-        expires_at: expiresAt,
-        used: false
-      });
+      // Sauvegarder le token dans la base de données
+      const { error: insertError } = await supabase
+        .from('password_reset_tokens')
+        .insert({
+          customer_id: user.id,
+          token: resetToken,
+          expires_at: expiresAt
+        })
 
-      // Envoyer l'email
-      if (RESEND_API_KEY) {
-        const resetUrl = `https://aloha-cbd.fr/mdp-oublie?token=${resetToken}`;
-        
-        await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${RESEND_API_KEY}`
-          },
-          body: JSON.stringify({
-            from: 'Aloha <noreply@contact.aloha-cbd.fr>',
-            to: email,
-            subject: 'Réinitialisation de votre mot de passe',
-            html: `
-              <h2>Réinitialisation de mot de passe</h2>
-              <p>Bonjour,</p>
-              <p>Vous avez demandé à réinitialiser votre mot de passe.</p>
-              <p>Cliquez sur le lien ci-dessous pour créer un nouveau mot de passe :</p>
-              <a href="${resetUrl}" style="background: #22192E; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; margin: 20px 0;">Réinitialiser mon mot de passe</a>
-              <p>Ce lien est valable pendant 1 heure.</p>
-              <p>Si vous n'avez pas demandé cette réinitialisation, ignorez cet email.</p>
-              <p>Cordialement,<br>L'équipe Aloha</p>
-            `
-          })
-        });
+      if (insertError) {
+        console.error('Error inserting reset token:', insertError)
+        return res.status(500).json({ error: 'Erreur serveur' })
+      }
+
+      // Envoyer l'email avec Resend
+      const resetUrl = `https://aloha-cbd.fr/mdp-oublie?token=${resetToken}`
+
+      try {
+        await resend.emails.send({
+          from: 'Aloha <onboarding@resend.dev>',
+          to: email,
+          subject: 'Réinitialisation de votre mot de passe',
+          html: `
+            <h2>Réinitialisation de mot de passe</h2>
+            <p>Bonjour ${user.first_name},</p>
+            <p>Vous avez demandé à réinitialiser votre mot de passe.</p>
+            <p>Cliquez sur le lien ci-dessous pour créer un nouveau mot de passe :</p>
+            <p><a href="${resetUrl}" style="background: #22192E; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block;">Réinitialiser mon mot de passe</a></p>
+            <p>Ce lien est valable pendant 1 heure.</p>
+            <p>Si vous n'avez pas demandé cette réinitialisation, ignorez cet email.</p>
+            <p>L'équipe Aloha</p>
+          `
+        })
+      } catch (emailError) {
+        console.error('Error sending email:', emailError)
+        return res.status(500).json({ error: 'Erreur lors de l\'envoi de l\'email' })
       }
 
       return res.status(200).json({ 
-        success: true, 
-        message: 'Si cet email existe, un lien de réinitialisation a été envoyé' 
-      });
+        message: 'Email envoyé avec succès' 
+      })
     }
 
-    // ACTION 2 : Réinitialiser le mot de passe
+    // ACTION 2 : RÉINITIALISATION DU MOT DE PASSE
     if (action === 'reset') {
       if (!token || !newPassword) {
-        return res.status(400).json({ error: 'Token et mot de passe requis' });
+        return res.status(400).json({ error: 'Token et nouveau mot de passe requis' })
       }
 
       if (newPassword.length < 6) {
-        return res.status(400).json({ error: 'Le mot de passe doit contenir au moins 6 caractères' });
+        return res.status(400).json({ error: 'Le mot de passe doit contenir au moins 6 caractères' })
       }
 
       // Vérifier le token
-      const { data: resetToken } = await supabase
+      const { data: resetToken, error: tokenError } = await supabase
         .from('password_reset_tokens')
-        .select('*')
+        .select('customer_id, expires_at, used')
         .eq('token', token)
-        .eq('used', false)
-        .single();
+        .single()
 
-      if (!resetToken) {
-        return res.status(400).json({ error: 'Token invalide ou expiré' });
+      if (tokenError || !resetToken) {
+        return res.status(400).json({ error: 'Token invalide' })
       }
 
-      // Vérifier l'expiration
+      // Vérifier si le token a expiré
       if (new Date(resetToken.expires_at) < new Date()) {
-        return res.status(400).json({ error: 'Token expiré' });
+        return res.status(400).json({ error: 'Token expiré' })
+      }
+
+      // Vérifier si le token a déjà été utilisé
+      if (resetToken.used) {
+        return res.status(400).json({ error: 'Token déjà utilisé' })
       }
 
       // Hasher le nouveau mot de passe
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      const hashedPassword = await bcrypt.hash(newPassword, 10)
 
       // Mettre à jour le mot de passe
-      await supabase
+      const { error: updateError } = await supabase
         .from('customers')
-        .update({ password: hashedPassword })
-        .eq('email', resetToken.email);
+        .update({ password_hash: hashedPassword })
+        .eq('id', resetToken.customer_id)
+
+      if (updateError) {
+        console.error('Error updating password:', updateError)
+        return res.status(500).json({ error: 'Erreur lors de la mise à jour du mot de passe' })
+      }
 
       // Marquer le token comme utilisé
       await supabase
         .from('password_reset_tokens')
         .update({ used: true })
-        .eq('token', token);
+        .eq('token', token)
 
       return res.status(200).json({ 
-        success: true, 
         message: 'Mot de passe réinitialisé avec succès' 
-      });
+      })
     }
 
-    return res.status(400).json({ error: 'Action invalide' });
+    return res.status(400).json({ error: 'Action invalide' })
 
   } catch (error) {
-    console.error('Error:', error);
-    return res.status(500).json({ error: 'Erreur serveur' });
+    console.error('Error in password-reset:', error)
+    return res.status(500).json({ error: 'Erreur serveur' })
   }
-};
+}
