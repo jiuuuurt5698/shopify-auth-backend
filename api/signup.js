@@ -25,30 +25,33 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { email, password, firstName, lastName } = req.body
+   const { email, password, firstName, lastName } = req.body
 
-    console.log('📝 Tentative de création de compte:', email)
+console.log('📝 Tentative de création de compte:', email)
 
-    if (!email || !password || !firstName || !lastName) {
-      return res.status(400).json({ error: 'Tous les champs sont requis' })
-    }
+if (!email || !password || !firstName || !lastName) {
+  return res.status(400).json({ error: 'Tous les champs sont requis' })
+}
 
-    // Vérifier les variables d'environnement
-    if (!SHOPIFY_ADMIN_TOKEN) {
-      console.error('❌ SHOPIFY_ADMIN_API_TOKEN manquant')
-      return res.status(500).json({ error: 'Configuration serveur manquante' })
-    }
+// Vérifier les variables d'environnement
+if (!SHOPIFY_ADMIN_TOKEN) {
+  console.error('❌ SHOPIFY_ADMIN_API_TOKEN manquant')
+  return res.status(500).json({ error: 'Configuration serveur manquante' })
+}
 
-    // Vérifier si l'email existe déjà dans Supabase
-    const { data: existingUser } = await supabase
-      .from('customers')
-      .select('email')
-      .eq('email', email)
-      .single()
+// Vérifier si l'email existe déjà dans Supabase
+console.log('🔍 Vérification email dans Supabase...')
+const { data: existingUsers, error: checkError } = await supabase
+  .from('customers')
+  .select('email')
+  .eq('email', email)
 
-    if (existingUser) {
-      return res.status(400).json({ error: 'Cet email est déjà utilisé' })
-    }
+if (existingUsers && existingUsers.length > 0) {
+  console.log('⚠️ Email déjà utilisé dans Supabase:', email)
+  return res.status(400).json({ error: 'Cet email est déjà utilisé' })
+}
+
+console.log('✅ Email disponible')
 
     // 1. CRÉER LE CLIENT DANS SHOPIFY (REST API)
     console.log('🛍️ Création client Shopify...')
