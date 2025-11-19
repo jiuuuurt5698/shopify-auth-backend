@@ -97,69 +97,83 @@ export default async function handler(req, res) {
 
     const shopifyCustomerId = shopifyData.customer.id.toString()
 
-    // 2. CRÉER LE CLIENT DANS SUPABASE
-    console.log('💾 Création client Supabase...')
+  // 2. CRÉER LE CLIENT DANS SUPABASE
+console.log('💾 Création client Supabase...')
 
-    const hashedPassword = await bcrypt.hash(password, 10)
+const hashedPassword = await bcrypt.hash(password, 10)
 
-    const { data: newUser, error: insertError } = await supabase
-      .from('customers')
-      .insert([
-        {
-          email,
-          password_hash: hashedPassword,
-          first_name: firstName,
-          last_name: lastName,
-          shopify_customer_id: shopifyCustomerId
-        }
-      ])
-      .select()
-      .single()
-
-    if (insertError) {
-      console.error('❌ Erreur Supabase:', insertError)
-      
-      // Si erreur Supabase, supprimer le client Shopify pour éviter les incohérences
-      try {
-        await fetch(
-          `https://${SHOPIFY_DOMAIN}/admin/api/2024-10/customers/${shopifyCustomerId}.json`,
-          {
-            method: 'DELETE',
-            headers: {
-              'X-Shopify-Access-Token': SHOPIFY_ADMIN_TOKEN,
-            }
-          }
-        )
-        console.log('🗑️ Client Shopify supprimé (rollback)')
-      } catch (deleteError) {
-        console.error('❌ Erreur lors du rollback:', deleteError)
-      }
-      
-      return res.status(500).json({ 
-        error: 'Erreur lors de la création du compte',
-        details: insertError.message
-      })
+const { data: newUser, error: insertError } = await supabase
+  .from('customers')
+  .insert([
+    {
+      email,
+      password_hash: hashedPassword,  // ✅ Correct
+      first_name: firstName,
+      last_name: lastName,
+      shopify_customer_id: shopifyCustomerId
     }
+  ])
+  .select()
+  .single()
 
-    console.log('✅ Client Supabase créé:', newUser.id)
-
-    // Retourner l'utilisateur
-    return res.status(200).json({
-      success: true,
-      user: {
-        id: newUser.id,
-        email: newUser.email,
-        firstName: newUser.first_name,
-        lastName: newUser.last_name,
-        shopifyId: shopifyCustomerId
-      }
-    })
-
-  } catch (error) {
-    console.error('💥 ERREUR CRITIQUE:', error)
-    return res.status(500).json({ 
-      error: 'Erreur serveur',
-      details: error.message
+if (insertError) {
+  console.error('❌ Erreur Supabase:', insertError)
+  
+  // Gérer le cas d'email en double (code PostgreSQL 23505)
+  if (insertError.code === '23505') {
+    // Rollback Shopify
+    try {
+      await fetch(
+        `https://${SHOPIFY_DOMAIN}/admin/api/2024-10/customers/${shopifyCustomerId}.json`,
+        {
+          method: 'DELETE',
+          headers: {
+            'X-Shopify-Access-Token': SHOPIFY_ADMIN_TOKEN,
+          }
+        }
+      )
+      console.log('🗑️ Client Shopify supprimé (rollback)')
+    } catch (deleteError) {
+      console.error('❌ Erreur lors du rollback:', deleteError)
+    }
+    
+    return res.status(400).json({ 
+      error: 'Cet email est déjà utilisé'
     })
   }
+  
+  // Autres erreurs - rollback aussi
+  try {
+    await fetch(
+      `https://${SHOPIFY_DOMAIN}/admin/api/2024-10/customers/${shopifyCustomerId}.json`,
+      {
+        method: 'DELETE',
+        headers: {
+          'X-Shopify-Access-Token': SHOPIFY_ADMIN_TOKEN,
+        }
+      }
+    )
+    console.log('🗑️ Client Shopify supprimé (rollback)')
+  } catch (deleteError) {
+    console.error('❌ Erreur lors du rollback:', deleteError)
+  }
+  
+  return res.status(500).json({ 
+    error: 'Erreur lors de la création du compte',
+    details: insertError.message
+  })
 }
+
+console.log('✅ Client Supabase créé:', newUser.id)
+
+// Retourner l'utilisateur
+return res.status(200).json({
+  success: true,
+  user: {
+    id: newUser.id,
+    email: newUser.email,
+    firstName: newUser.first_name,
+    lastName: newUser.last_name,
+    shopifyId: shopifyCustomerId
+  }
+})
