@@ -1,28 +1,30 @@
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_KEY;
+const SUPABASE_URL = process.env.SUPABASE_URL
+const SUPABASE_KEY = process.env.SUPABASE_KEY
 
-module.exports = async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+export default async function handler(req, res) {
+  // CORS headers
+  res.setHeader('Access-Control-Allow-Credentials', 'true')
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version')
 
   if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+    return res.status(200).end()
   }
 
   if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const { email } = req.query;
+  const { email } = req.query
 
   if (!email) {
-    return res.status(400).json({ error: 'Email requis' });
+    return res.status(400).json({ error: 'Email requis' })
   }
 
   try {
     if (!SUPABASE_URL || !SUPABASE_KEY) {
-      return res.status(200).json({ redeemed: [] });
+      return res.status(200).json({ redeemed: [] })
     }
 
     const response = await fetch(
@@ -33,19 +35,18 @@ module.exports = async (req, res) => {
           'Authorization': `Bearer ${SUPABASE_KEY}`,
         }
       }
-    );
+    )
 
     if (!response.ok) {
-      return res.status(200).json({ redeemed: [] });
+      return res.status(200).json({ redeemed: [] })
     }
 
-    const data = await response.json();
-    const redeemedNames = data.map(item => item.palier_name);
+    const data = await response.json()
+    const redeemedNames = data.map(item => item.palier_name)
 
-    return res.status(200).json({ redeemed: redeemedNames });
-
+    return res.status(200).json({ redeemed: redeemedNames })
   } catch (error) {
-    console.error('Error:', error);
-    return res.status(200).json({ redeemed: [] });
+    console.error('Error:', error)
+    return res.status(200).json({ redeemed: [] })
   }
-};
+}
