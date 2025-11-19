@@ -1,6 +1,10 @@
-const SHOPIFY_DOMAIN = process.env.SHOPIFY_DOMAIN
-const STOREFRONT_ACCESS_TOKEN = process.env.SHOPIFY_STOREFRONT_TOKEN
-const STOREFRONT_API_URL = `https://${SHOPIFY_DOMAIN}/api/2024-10/graphql.json`
+import { createClient } from '@supabase/supabase-js'
+import bcrypt from 'bcryptjs'
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_KEY
+)
 
 export default async function handler(req, res) {
   // CORS headers
@@ -24,94 +28,37 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Email et mot de passe requis' })
     }
 
-    const loginQuery = `
-      mutation customerAccessTokenCreate($input: CustomerAccessTokenCreateInput!) {
-        customerAccessTokenCreate(input: $input) {
-          customerAccessToken {
-            accessToken
-            expiresAt
-          }
-          customerUserErrors {
-            code
-            field
-            message
-          }
-        }
-      }
-    `
+    // Récupérer l'utilisateur depuis Supabase
+    const { data: user, error: userError } = await supabase
+      .from('customers')
+      .select('*')
+      .eq('email', email)
+      .single()
 
-    const loginResponse = await fetch(STOREFRONT_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Shopify-Storefront-Access-Token': STOREFRONT_ACCESS_TOKEN,
-      },
-      body: JSON.stringify({
-        query: loginQuery,
-        variables: {
-          input: { email, password }
-        }
-      })
-    })
-
-    const loginData = await loginResponse.json()
-
-    if (loginData.errors || loginData.data.customerAccessTokenCreate.customerUserErrors.length > 0) {
-      const errorMessage = loginData.data.customerAccessTokenCreate.customerUserErrors.length > 0
-        ? loginData.data.customerAccessTokenCreate.customerUserErrors[0].message
-        : 'Erreur de connexion'
-      return res.status(401).json({ error: errorMessage })
+    if (userError || !user) {
+      return res.status(401).json({ error: 'Email ou mot de passe incorrect' })
     }
 
-    const accessToken = loginData.data.customerAccessTokenCreate.customerAccessToken.accessToken
+    // Vérifier le mot de passe
+    const validPassword = await bcrypt.compare(password, user.password_hash)
 
-    const customerQuery = `
-      query getCustomer($customerAccessToken: String!) {
-        customer(customerAccessToken: $customerAccessToken) {
-          id
-          email
-          firstName
-          lastName
-          phone
-          metafield(namespace: "loyalty", key: "points") {
-            value
-          }
-        }
-      }
-    `
+    if (!validPassword) {
+      return res.status(401).json({ error: 'Email ou mot de passe incorrect' })
+    }
 
-    const customerResponse = await fetch(STOREFRONT_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Shopify-Storefront-Access-Token': STOREFRONT_ACCESS_TOKEN,
-      },
-      body: JSON.stringify({
-        query: customerQuery,
-        variables: { customerAccessToken: accessToken }
-      })
-    })
-
-    const customerData = await customerResponse.json()
-    const customer = customerData.data.customer
-
+    // Retourner l'utilisateur (sans le mot de passe)
     return res.status(200).json({
       success: true,
       user: {
-        id: customer.id,
-        email: customer.email,
-        firstName: customer.firstName,
-        lastName: customer.lastName,
-        phone: customer.phone,
-        loyaltyPoints: parseInt(customer.metafield?.value || "0"),
-        accessToken: accessToken
+        id: user.id,
+        email: user.email,
+        firstName: user.first_name,
+        lastName: user.last_name
       }
     })
+
   } catch (error) {
-    console.error('Signin Error:', error)
-    return res.status(500).json({ 
-      error: 'Erreur serveur', 
-      details: error.message 
-    })
+    console.error('Error in signin:', error)
+    return res.status(500).json({ error: 'Erreur serveur' })
   }
 }
