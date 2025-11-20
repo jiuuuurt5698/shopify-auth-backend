@@ -76,80 +76,144 @@ export default async function handler(req, res) {
           to: email,
           subject: 'Réinitialisation de votre mot de passe',
           html: `<!DOCTYPE html>
+html: `<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap');
+  </style>
 </head>
-<body style="margin: 0; padding: 0; font-family: 'Archivo', -apple-system, sans-serif; background-color: #FAF9F9;">
-  <table role="presentation" style="width: 100%; border-collapse: collapse;">
+<body style="margin: 0; padding: 0; font-family: 'Archivo', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; background-color: #FAF9F9;">
+  <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #FAF9F9;">
     <tr>
       <td align="center" style="padding: 40px 20px;">
-        <table role="presentation" style="max-width: 600px; border-collapse: collapse; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+        
+        <!-- Container principal -->
+        <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.12);">
+          
+          <!-- Header avec gradient violet -->
           <tr>
-            <td style="background: linear-gradient(135deg, #22192E 0%, #3d2f52 100%); padding: 40px 30px; text-align: center;">
-              <h1 style="margin: 0 0 20px 0; color: #ffffff; font-size: 36px; font-weight: 700;">Aloha</h1>
-              <h2 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700;">Réinitialisation de mot de passe</h2>
+            <td style="background: linear-gradient(135deg, #22192E 0%, #3d2f52 100%); padding: 50px 40px; text-align: center;">
+              <h1 style="margin: 0 0 24px 0; color: #ffffff; font-size: 42px; font-weight: 700; font-family: 'Archivo', -apple-system, sans-serif; letter-spacing: -0.5px;">Aloha</h1>
+              <h2 style="margin: 0; color: #FAF9F9; font-size: 26px; font-weight: 600; font-family: 'Archivo', -apple-system, sans-serif; line-height: 1.3;">Réinitialisation de votre mot de passe</h2>
             </td>
           </tr>
+          
+          <!-- Corps du message -->
           <tr>
-            <td style="padding: 40px 30px;">
-              <p style="margin: 0 0 20px 0; color: #22192E; font-size: 16px;">
-                Bonjour <strong>${user.first_name}</strong>,
+            <td style="padding: 48px 40px;">
+              
+              <!-- Salutation -->
+              <p style="margin: 0 0 24px 0; color: #22192E; font-size: 17px; font-weight: 400; line-height: 1.6; font-family: 'Archivo', -apple-system, sans-serif;">
+                Bonjour <strong style="font-weight: 700;">${user.first_name}</strong>,
               </p>
-              <p style="margin: 0 0 20px 0; color: #718096; font-size: 15px; line-height: 1.6;">
-                Vous avez demandé à réinitialiser le mot de passe de votre compte Aloha.
+              
+              <!-- Message principal -->
+              <p style="margin: 0 0 24px 0; color: #718096; font-size: 16px; font-weight: 400; line-height: 1.7; font-family: 'Archivo', -apple-system, sans-serif;">
+                Vous avez demandé à réinitialiser le mot de passe de votre compte Aloha. Nous sommes là pour vous aider !
               </p>
-              <p style="margin: 0 0 30px 0; color: #718096; font-size: 15px; line-height: 1.6;">
-                Cliquez sur le bouton ci-dessous pour créer un nouveau mot de passe :
+              
+              <p style="margin: 0 0 36px 0; color: #718096; font-size: 16px; font-weight: 400; line-height: 1.7; font-family: 'Archivo', -apple-system, sans-serif;">
+                Cliquez sur le bouton ci-dessous pour créer un nouveau mot de passe sécurisé :
               </p>
+              
+              <!-- Bouton CTA -->
               <table role="presentation" style="width: 100%; border-collapse: collapse;">
                 <tr>
-                  <td align="center" style="padding: 20px 0;">
-                    <a href="${resetUrl}" style="display: inline-block; background: #BC6170; color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 12px; font-size: 16px; font-weight: 700; box-shadow: 0 4px 12px rgba(188, 97, 112, 0.3);">
+                  <td align="center" style="padding: 24px 0;">
+                    <a href="${resetUrl}" style="display: inline-block; background: linear-gradient(135deg, #BC6170 0%, #a0515f 100%); color: #ffffff; text-decoration: none; padding: 18px 48px; border-radius: 14px; font-size: 17px; font-weight: 700; font-family: 'Archivo', -apple-system, sans-serif; box-shadow: 0 6px 20px rgba(188, 97, 112, 0.35); transition: all 0.3s ease;">
                       Réinitialiser mon mot de passe
                     </a>
                   </td>
                 </tr>
               </table>
-              <p style="margin: 20px 0 0 0; color: #718096; font-size: 13px; text-align: center;">
-                Ou copiez ce lien :
+              
+              <!-- Lien alternatif -->
+              <p style="margin: 32px 0 0 0; color: #718096; font-size: 14px; font-weight: 400; line-height: 1.6; font-family: 'Archivo', -apple-system, sans-serif; text-align: center;">
+                Si le bouton ne fonctionne pas, copiez-collez ce lien dans votre navigateur :
               </p>
-              <p style="margin: 10px 0 30px 0; color: #BC6170; font-size: 13px; text-align: center; word-break: break-all;">
-                ${resetUrl}
+              <p style="margin: 12px 0 36px 0; text-align: center;">
+                <a href="${resetUrl}" style="color: #BC6170; font-size: 13px; font-weight: 500; word-break: break-all; font-family: 'Archivo', -apple-system, sans-serif; text-decoration: underline;">${resetUrl}</a>
               </p>
-              <table role="presentation" style="width: 100%; background: #FEF3C7; border-radius: 10px;">
+              
+              <!-- Box d'avertissement -->
+              <table role="presentation" style="width: 100%; border-collapse: collapse; background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); border-radius: 14px; border-left: 4px solid #F59E0B; margin-top: 36px;">
                 <tr>
-                  <td style="padding: 16px;">
-                    <p style="margin: 0 0 8px 0; color: #78350f; font-size: 14px; font-weight: 700;">
-                      ⚠️ Important
+                  <td style="padding: 20px 24px;">
+                    <p style="margin: 0 0 10px 0; color: #78350f; font-size: 15px; font-weight: 700; font-family: 'Archivo', -apple-system, sans-serif; display: flex; align-items: center;">
+                      <span style="font-size: 20px; margin-right: 8px;">⚠️</span>
+                      <span>Important - Sécurité</span>
                     </p>
-                    <p style="margin: 0; color: #78350f; font-size: 13px; line-height: 1.5;">
-                      Ce lien est valable pendant <strong>1 heure</strong> seulement. Si vous n'avez pas demandé cette réinitialisation, ignorez cet email.
+                    <p style="margin: 0; color: #92400e; font-size: 14px; font-weight: 400; line-height: 1.6; font-family: 'Archivo', -apple-system, sans-serif;">
+                      Ce lien est valable pendant <strong style="font-weight: 700;">1 heure</strong> seulement. Si vous n'avez pas demandé cette réinitialisation, ignorez cet email en toute sécurité. Votre compte reste protégé.
                     </p>
                   </td>
                 </tr>
               </table>
+              
             </td>
           </tr>
+          
+          <!-- Séparateur -->
           <tr>
-            <td style="background: #EFEDEE; padding: 30px; text-align: center;">
-              <p style="margin: 0 0 16px 0; color: #22192E; font-size: 14px; font-weight: 600;">
-                L'équipe Aloha 🌺
+            <td style="padding: 0 40px;">
+              <div style="border-top: 1px solid #e2e8f0;"></div>
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #EFEDEE 0%, #E8E6E7 100%); padding: 36px 40px; text-align: center;">
+              
+              <!-- Signature -->
+              <p style="margin: 0 0 20px 0; color: #22192E; font-size: 16px; font-weight: 700; font-family: 'Archivo', -apple-system, sans-serif; letter-spacing: -0.2px;">
+                L'équipe Aloha <span style="font-size: 18px;">🌺</span>
               </p>
-              <p style="margin: 0 0 16px 0; color: #718096; font-size: 13px;">
-                <a href="https://aloha-cbd.fr" style="color: #718096; text-decoration: none; margin: 0 10px;">Boutique</a>
-                <span style="color: #e2e8f0;">|</span>
-                <a href="https://aloha-cbd.fr/mon-compte" style="color: #718096; text-decoration: none; margin: 0 10px;">Mon compte</a>
-                <span style="color: #e2e8f0;">|</span>
-                <a href="https://aloha-cbd.fr/contact" style="color: #718096; text-decoration: none; margin: 0 10px;">Support</a>
-              </p>
-              <p style="margin: 0; color: #718096; font-size: 12px;">
+              
+              <!-- Liens utiles -->
+              <table role="presentation" style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                <tr>
+                  <td align="center">
+                    <a href="https://aloha-cbd.fr" style="color: #718096; text-decoration: none; font-size: 14px; font-weight: 500; font-family: 'Archivo', -apple-system, sans-serif; margin: 0 12px; transition: color 0.2s;">Boutique</a>
+                    <span style="color: #cbd5e0; font-weight: 300;">•</span>
+                    <a href="https://aloha-cbd.fr/mon-compte" style="color: #718096; text-decoration: none; font-size: 14px; font-weight: 500; font-family: 'Archivo', -apple-system, sans-serif; margin: 0 12px; transition: color 0.2s;">Mon compte</a>
+                    <span style="color: #cbd5e0; font-weight: 300;">•</span>
+                    <a href="https://aloha-cbd.fr/contact" style="color: #718096; text-decoration: none; font-size: 14px; font-weight: 500; font-family: 'Archivo', -apple-system, sans-serif; margin: 0 12px; transition: color 0.2s;">Support</a>
+                  </td>
+                </tr>
+              </table>
+              
+              <!-- Réseaux sociaux (optionnel) -->
+              <!-- <table role="presentation" style="margin: 0 auto 20px; border-collapse: collapse;">
+                <tr>
+                  <td style="padding: 0 8px;">
+                    <a href="https://instagram.com/aloha" style="text-decoration: none;">
+                      <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram" style="width: 24px; height: 24px; display: block;">
+                    </a>
+                  </td>
+                  <td style="padding: 0 8px;">
+                    <a href="https://facebook.com/aloha" style="text-decoration: none;">
+                      <img src="https://cdn-icons-png.flaticon.com/512/174/174848.png" alt="Facebook" style="width: 24px; height: 24px; display: block;">
+                    </a>
+                  </td>
+                </tr>
+              </table> -->
+              
+              <!-- Copyright -->
+              <p style="margin: 0; color: #9CA3AF; font-size: 13px; font-weight: 400; font-family: 'Archivo', -apple-system, sans-serif;">
                 © ${new Date().getFullYear()} Aloha CBD. Tous droits réservés.
               </p>
+              <p style="margin: 8px 0 0 0; color: #9CA3AF; font-size: 12px; font-weight: 400; font-family: 'Archivo', -apple-system, sans-serif;">
+                Aubenas, Rhône-Alpes, France
+              </p>
+              
             </td>
           </tr>
+          
         </table>
+        
       </td>
     </tr>
   </table>
