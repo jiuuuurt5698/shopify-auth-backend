@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 import crypto from 'crypto'
-import bcrypt from 'bcryptjs'  // ⬅️ AJOUTÉ ICI
+import bcrypt from 'bcryptjs'
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -68,15 +68,14 @@ export default async function handler(req, res) {
       }
 
       // Envoyer l'email avec Resend
-const resetUrl = `https://aloha-cbd.fr/mdp-oublie?token=${resetToken}`
+      const resetUrl = `https://aloha-cbd.fr/mdp-oublie?token=${resetToken}`
 
-try {
-  const { data, error } = await resend.emails.send({
-    from: 'Aloha <noreply@noreply.aloha-cbd.fr>',
-    to: email,
-    subject: 'Réinitialisation de votre mot de passe',
-    html: `<!DOCTYPE html>
-html: `<!DOCTYPE html>
+      try {
+        const { data, error } = await resend.emails.send({
+          from: 'Aloha <noreply@noreply.aloha-cbd.fr>',
+          to: email,
+          subject: 'Réinitialisation de votre mot de passe',
+          html: `<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
@@ -187,27 +186,27 @@ html: `<!DOCTYPE html>
   </table>
 </body>
 </html>`
-  })
+        })
 
-  if (error) {
-    console.error('❌ Erreur Resend:', error)
-    return res.status(500).json({ 
-      error: 'Erreur lors de l\'envoi de l\'email'
-    })
-  }
+        if (error) {
+          console.error('❌ Erreur Resend:', error)
+          return res.status(500).json({ 
+            error: 'Erreur lors de l\'envoi de l\'email'
+          })
+        }
 
-  console.log('✅ Email envoyé avec succès à:', email)
+        console.log('✅ Email envoyé avec succès à:', email)
 
-} catch (emailError) {
-  console.error('❌ Erreur catch email:', emailError)
-  return res.status(500).json({ 
-    error: 'Erreur lors de l\'envoi de l\'email'
-  })
-}
+      } catch (emailError) {
+        console.error('❌ Erreur catch email:', emailError)
+        return res.status(500).json({ 
+          error: 'Erreur lors de l\'envoi de l\'email'
+        })
+      }
 
-return res.status(200).json({
-  message: 'Email de réinitialisation envoyé'
-})
+      return res.status(200).json({
+        message: 'Email de réinitialisation envoyé'
+      })
 
     } catch (error) {
       console.error('❌ Erreur globale:', error)
@@ -258,15 +257,16 @@ return res.status(200).json({
 
       // Hasher le nouveau mot de passe
       console.log('🔐 Hachage du mot de passe...')
-      const hashedPassword = await bcrypt.hash(newPassword, 10)  // ⬅️ UTILISE bcrypt IMPORTÉ
+      const hashedPassword = await bcrypt.hash(newPassword, 10)
       console.log('✅ Mot de passe haché')
 
       // Mettre à jour le mot de passe
       console.log('💾 Mise à jour du mot de passe pour customer_id:', tokenData.customer_id)
       const { error: updateError } = await supabase
-  .from('customers')
-  .update({ password_hash: hashedPassword })  // ✅ OU le nom correct de votre colonne
-  .eq('id', tokenData.customer_id)
+        .from('customers')
+        .update({ password_hash: hashedPassword })
+        .eq('id', tokenData.customer_id)
+      
       if (updateError) {
         console.error('❌ Erreur lors de la mise à jour du mot de passe:', updateError)
         return res.status(500).json({ error: 'Erreur lors de la mise à jour du mot de passe' })
