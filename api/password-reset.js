@@ -76,6 +76,7 @@ try {
     to: email,
     subject: 'Réinitialisation de votre mot de passe',
     html: `<!DOCTYPE html>
+html: `<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
@@ -84,79 +85,102 @@ try {
     @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap');
   </style>
 </head>
-<body style="margin: 0; padding: 0; font-family: 'Archivo', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background-color: #FAF9F9;">
+<body style="margin: 0; padding: 0; font-family: 'Archivo', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background-color: #EACDC2;">
   <table role="presentation" style="width: 100%; border-collapse: collapse;">
     <tr>
       <td align="center" style="padding: 40px 20px;">
-        <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.12);">
+        <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse;">
+          
+          <!-- HEADER AVEC LOGO -->
           <tr>
-            <td style="background: linear-gradient(135deg, #22192E 0%, #3d2f52 100%); padding: 50px 40px; text-align: center;">
-              <h1 style="margin: 0 0 24px 0; color: #ffffff; font-size: 42px; font-weight: 700; font-family: 'Archivo', -apple-system, sans-serif;">Aloha</h1>
-              <h2 style="margin: 0; color: #FAF9F9; font-size: 26px; font-weight: 600; font-family: 'Archivo', -apple-system, sans-serif;">Réinitialisation de votre mot de passe</h2>
+            <td align="center" style="padding: 0 0 32px 0;">
+              <h1 style="margin: 0; color: #22192E; font-size: 56px; font-weight: 700; font-family: 'Archivo', sans-serif; letter-spacing: -1px;">ALOHA</h1>
             </td>
           </tr>
+
+          <!-- CARTE PRINCIPALE -->
           <tr>
-            <td style="padding: 48px 40px;">
-              <p style="margin: 0 0 24px 0; color: #22192E; font-size: 17px; font-family: 'Archivo', -apple-system, sans-serif;">
-                Bonjour <strong style="font-weight: 700;">${user.first_name}</strong>,
-              </p>
-              <p style="margin: 0 0 24px 0; color: #718096; font-size: 16px; line-height: 1.7; font-family: 'Archivo', -apple-system, sans-serif;">
-                Vous avez demandé à réinitialiser le mot de passe de votre compte Aloha.
-              </p>
-              <p style="margin: 0 0 36px 0; color: #718096; font-size: 16px; line-height: 1.7; font-family: 'Archivo', -apple-system, sans-serif;">
-                Cliquez sur le bouton ci-dessous pour créer un nouveau mot de passe :
-              </p>
-              <table role="presentation" style="width: 100%; border-collapse: collapse;">
+            <td>
+              <table role="presentation" style="width: 100%; background: #FAF9F9; border-radius: 24px; overflow: hidden; box-shadow: 0 10px 40px rgba(34, 25, 46, 0.12);">
+                
+                <!-- ZONE VISUELLE AVEC FORME 3D -->
                 <tr>
-                  <td align="center" style="padding: 24px 0;">
-                    <a href="${resetUrl}" style="display: inline-block; background: #BC6170; color: #ffffff; text-decoration: none; padding: 18px 48px; border-radius: 14px; font-size: 17px; font-weight: 700; font-family: 'Archivo', -apple-system, sans-serif; box-shadow: 0 6px 20px rgba(188, 97, 112, 0.35);">
-                      Réinitialiser mon mot de passe
-                    </a>
+                  <td style="background: linear-gradient(135deg, #BC6170 0%, #9d5260 100%); padding: 48px 40px; text-align: center; position: relative;">
+                    <!-- Forme décorative 3D simulée en CSS -->
+                    <div style="display: inline-block; background: rgba(255, 255, 255, 0.15); width: 120px; height: 120px; border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; margin: 0 auto 24px; backdrop-filter: blur(10px);"></div>
+                    <h2 style="margin: 0; color: #FAF9F9; font-size: 28px; font-weight: 700; font-family: 'Archivo', sans-serif;">Réinitialisation</h2>
+                    <p style="margin: 12px 0 0 0; color: rgba(250, 249, 249, 0.85); font-size: 16px; font-family: 'Archivo', sans-serif;">de votre mot de passe</p>
                   </td>
                 </tr>
-              </table>
-              <p style="margin: 32px 0 0 0; color: #718096; font-size: 14px; font-family: 'Archivo', -apple-system, sans-serif; text-align: center;">
-                Ou copiez ce lien :
-              </p>
-              <p style="margin: 12px 0 36px 0; text-align: center;">
-                <a href="${resetUrl}" style="color: #BC6170; font-size: 13px; word-break: break-all; font-family: 'Archivo', -apple-system, sans-serif;">${resetUrl}</a>
-              </p>
-              <table role="presentation" style="width: 100%; background: #FEF3C7; border-radius: 14px; border-left: 4px solid #F59E0B;">
+
+                <!-- CONTENU PRINCIPAL -->
                 <tr>
-                  <td style="padding: 20px 24px;">
-                    <p style="margin: 0 0 10px 0; color: #78350f; font-size: 15px; font-weight: 700; font-family: 'Archivo', -apple-system, sans-serif;">
-                      ⚠️ Important
+                  <td style="padding: 48px 40px;">
+                    <p style="margin: 0 0 20px 0; color: #22192E; font-size: 17px; font-family: 'Archivo', sans-serif;">
+                      Salut <strong style="font-weight: 700; color: #BC6170;">${user.first_name}</strong> 👋
                     </p>
-                    <p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.6; font-family: 'Archivo', -apple-system, sans-serif;">
-                      Ce lien est valable pendant <strong>1 heure</strong>. Si vous n'avez pas demandé cette réinitialisation, ignorez cet email.
+                    <p style="margin: 0 0 32px 0; color: #4a5568; font-size: 16px; line-height: 1.6; font-family: 'Archivo', sans-serif;">
+                      Pas de panique ! On a reçu ta demande de réinitialisation de mot de passe. Clique sur le bouton ci-dessous pour créer ton nouveau mot de passe.
+                    </p>
+                    
+                    <!-- BOUTON CTA -->
+                    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                      <tr>
+                        <td align="center" style="padding: 8px 0 40px 0;">
+                          <a href="${resetUrl}" style="display: inline-block; background: #BC6170; color: #FAF9F9; text-decoration: none; padding: 18px 48px; border-radius: 16px; font-size: 17px; font-weight: 700; font-family: 'Archivo', sans-serif; box-shadow: 0 8px 24px rgba(188, 97, 112, 0.35); transition: all 0.3s;">
+                            Réinitialiser mon mot de passe
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- ALERTE -->
+                    <table role="presentation" style="width: 100%; background: #FEF3C7; border-radius: 16px; border-left: 5px solid #F59E0B;">
+                      <tr>
+                        <td style="padding: 24px;">
+                          <p style="margin: 0 0 8px 0; color: #78350f; font-size: 15px; font-weight: 700; font-family: 'Archivo', sans-serif;">
+                            ⏱️ Attention
+                          </p>
+                          <p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.6; font-family: 'Archivo', sans-serif;">
+                            Ce lien expire dans <strong>1 heure</strong>. Si tu n'as pas demandé cette réinitialisation, ignore simplement cet email.
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- LIEN ALTERNATIF -->
+                    <p style="margin: 32px 0 0 0; color: #718096; font-size: 13px; font-family: 'Archivo', sans-serif; text-align: center;">
+                      Le bouton ne fonctionne pas ? Copie ce lien dans ton navigateur :
+                    </p>
+                    <p style="margin: 12px 0 0 0; text-align: center;">
+                      <a href="${resetUrl}" style="color: #BC6170; font-size: 12px; word-break: break-all; font-family: 'Archivo', sans-serif; text-decoration: none;">${resetUrl}</a>
                     </p>
                   </td>
                 </tr>
+
               </table>
             </td>
           </tr>
+
+          <!-- FOOTER -->
           <tr>
-            <td style="padding: 0 40px;">
-              <div style="border-top: 1px solid #e2e8f0;"></div>
-            </td>
-          </tr>
-          <tr>
-            <td style="background: #EFEDEE; padding: 36px 40px; text-align: center;">
-              <p style="margin: 0 0 20px 0; color: #22192E; font-size: 16px; font-weight: 700; font-family: 'Archivo', -apple-system, sans-serif;">
-                L'équipe Aloha 
+            <td style="padding: 32px 20px 0 20px; text-align: center;">
+              <p style="margin: 0 0 16px 0; color: #22192E; font-size: 16px; font-weight: 600; font-family: 'Archivo', sans-serif;">
+                L'équipe Aloha 🌺
               </p>
-              <p style="margin: 0 0 20px 0; color: #718096; font-size: 14px; font-family: 'Archivo', -apple-system, sans-serif;">
-                <a href="https://aloha-cbd.fr" style="color: #718096; text-decoration: none; margin: 0 12px;">Boutique</a>
-                <span style="color: #cbd5e0;">•</span>
-                <a href="https://aloha-cbd.fr/mon-compte" style="color: #718096; text-decoration: none; margin: 0 12px;">Mon compte</a>
-                <span style="color: #cbd5e0;">•</span>
-                <a href="https://aloha-cbd.fr/contact" style="color: #718096; text-decoration: none; margin: 0 12px;">Support</a>
+              <p style="margin: 0 0 16px 0; font-size: 14px; font-family: 'Archivo', sans-serif;">
+                <a href="https://aloha-cbd.fr" style="color: #22192E; text-decoration: none; margin: 0 10px; font-weight: 500;">Boutique</a>
+                <span style="color: #BC6170;">•</span>
+                <a href="https://aloha-cbd.fr/mon-compte" style="color: #22192E; text-decoration: none; margin: 0 10px; font-weight: 500;">Mon compte</a>
+                <span style="color: #BC6170;">•</span>
+                <a href="https://aloha-cbd.fr/contact" style="color: #22192E; text-decoration: none; margin: 0 10px; font-weight: 500;">Support</a>
               </p>
-              <p style="margin: 0; color: #9CA3AF; font-size: 13px; font-family: 'Archivo', -apple-system, sans-serif;">
+              <p style="margin: 0; color: #718096; font-size: 12px; font-family: 'Archivo', sans-serif;">
                 © ${new Date().getFullYear()} Aloha CBD. Tous droits réservés.
               </p>
             </td>
           </tr>
+
         </table>
       </td>
     </tr>
