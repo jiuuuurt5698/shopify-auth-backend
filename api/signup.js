@@ -69,7 +69,7 @@ const getWelcomeEmailTemplate = (firstName, discountCode, expirationDate) => {
               </p>
               
               <!-- CARTE CODE PROMO -->
-              <table role="presentation" style="width: 100% !important; background: #22192E !important; border-radius: 16px !important; margin-bottom: 32px !important;">
+              <table role="presentation" style="width: 100% !important; background: #22192E !important; border-radius: 16px !important; margin-bottom: 24px !important;">
                 <tr>
                   <td style="padding: 32px 24px !important; text-align: center !important;">
                     <p style="margin: 0 0 16px 0 !important; color: #FAF9F9 !important; font-size: 15px !important; font-weight: 600 !important; font-family: 'Archivo', -apple-system, sans-serif !important; text-transform: uppercase !important; letter-spacing: 1px !important; opacity: 0.9 !important;">
@@ -89,7 +89,7 @@ const getWelcomeEmailTemplate = (firstName, discountCode, expirationDate) => {
               </table>
 
               <!-- BOX PROGRAMME FIDELITÉ AVEC BOUTON INTÉGRÉ -->
-              <table role="presentation" style="width: 100% !important; background: #EFEDEE !important; border-radius: 16px !important; margin-bottom: 32px !important;">
+              <table role="presentation" style="width: 100% !important; background: #EFEDEE !important; border-radius: 16px !important; margin-bottom: 24px !important;">
                 <tr>
                   <td style="padding: 24px !important;">
                     <p style="margin: 0 0 16px 0 !important; color: #22192E !important; font-size: 16px !important; font-weight: 700 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">
