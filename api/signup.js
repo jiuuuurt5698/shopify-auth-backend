@@ -394,12 +394,12 @@ export default async function handler(req, res) {
       console.log('📧 Envoi email de bienvenue...')
       const emailHtml = getWelcomeEmailTemplate(firstName, code, expirationDate)
 
-      await resend.emails.send({
-        from: 'Aloha CBD <noreply.aloha-cbd.fr>', // Change avec ton domaine vérifié
-        to: [email],
-        subject: `Bienvenue ${firstName} ! Voici 10% de réduction 🎉`,
-        html: emailHtml,
-      })
+    await resend.emails.send({
+  from: 'ALOHA CBD <noreply@aloha-cbd.fr>',
+  to: [email],
+  subject: `Bienvenue ${firstName} ! Voici 10% de réduction 🎉`,
+  html: emailHtml,
+})
 
       console.log('✅ Email envoyé avec succès')
     } catch (emailError) {
