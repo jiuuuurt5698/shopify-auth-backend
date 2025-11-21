@@ -395,7 +395,7 @@ export default async function handler(req, res) {
       const emailHtml = getWelcomeEmailTemplate(firstName, code, expirationDate)
 
     await resend.emails.send({
-  from: 'ALOHA CBD <noreply@aloha-cbd.fr>',
+  from: 'ALOHA CBD <hello@noreply.aloha-cbd.fr>',  // ✅ Correct
   to: [email],
   subject: `Bienvenue ${firstName} ! Voici 10% de réduction 🎉`,
   html: emailHtml,
