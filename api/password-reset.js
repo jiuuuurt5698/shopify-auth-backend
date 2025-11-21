@@ -128,19 +128,16 @@ export default async function handler(req, res) {
             </td>
           </tr>
 
-          <!-- IMAGE SOCIAL PREVIEW AVEC BOUTON EN BACKGROUND -->
+          <!-- IMAGE SOCIAL PREVIEW AVEC BOUTON CENTRÉ -->
           <tr>
             <td style="padding: 0 24px 24px 24px;">
-              <table role="presentation" style="width: 100%; border-collapse: collapse; background-image: url('https://xdkdxtrlldghcwymbttt.supabase.co/storage/v1/object/public/email-assets/SOCIAL%20PREVIEW.png'); background-size: cover; background-position: center; border-radius: 16px; min-height: 300px;">
+              <table role="presentation" style="width: 100%; border-collapse: collapse; background-image: url('https://xdkdxtrlldghcwymbttt.supabase.co/storage/v1/object/public/email-assets/SOCIAL%20PREVIEW.png'); background-size: cover; background-position: center; border-radius: 16px; height: 300px;">
                 <tr>
-                  <td align="center" valign="bottom" style="padding: 0 0 40px 0;">
+                  <td align="center" valign="middle" style="height: 300px;">
                     <a href="https://aloha-cbd.fr" style="display: inline-block; background: #22192E; color: #FAF9F9; text-decoration: none; padding: 16px 40px; border-radius: 14px; font-size: 16px; font-weight: 700; font-family: 'Archivo', sans-serif; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);">
                       Découvrir la boutique
                     </a>
                   </td>
-                </tr>
-                <tr>
-                  <td style="height: 260px;"></td>
                 </tr>
               </table>
             </td>
@@ -149,7 +146,7 @@ export default async function handler(req, res) {
           <!-- FOOTER -->
           <tr>
             <td style="padding: 32px 40px; text-align: center; background: #EFEDEE;">
-              <p style="margin: 0 0 16px 0; color: #22192E; font-size: 16px; font-weight: 600; font-family: 'Archivo', sans-serif;">L'équipe Aloha 🌺</p>
+              <p style="margin: 0 0 16px 0; color: #22192E; font-size: 16px; font-weight: 600; font-family: 'Archivo', sans-serif;">L'équipe Aloha</p>
               <p style="margin: 0 0 16px 0; font-size: 14px; font-family: 'Archivo', sans-serif;">
                 <a href="https://aloha-cbd.fr/mon-compte" style="color: #22192E; text-decoration: none; margin: 0 10px; font-weight: 500;">Mon compte</a>
                 <span style="color: #BC6170;">•</span>
