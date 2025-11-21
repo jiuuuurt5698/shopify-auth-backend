@@ -140,6 +140,21 @@ export default async function handler(req, res) {
 
     console.log('✅ Client Supabase créé:', newUser.id)
 
+    // ✨ NOUVEAU : Envoyer l'email de bienvenue avec code promo
+    console.log('📧 Envoi email de bienvenue...')
+    fetch(`${process.env.BACKEND_URL || 'https://shopify-auth-backend-pi.vercel.app'}/api/send-welcome-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: newUser.email,
+        firstName: newUser.first_name,
+        lastName: newUser.last_name,
+      }),
+    }).catch(error => {
+      console.error('⚠️ Erreur envoi email bienvenue (non bloquant):', error)
+      // Ne pas bloquer l'inscription si l'email échoue
+    })
+
     return res.status(200).json({
       success: true,
       user: {
