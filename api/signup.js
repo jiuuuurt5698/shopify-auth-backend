@@ -12,7 +12,7 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 const SHOPIFY_DOMAIN = process.env.SHOPIFY_DOMAIN || 'f8bnjk-2f.myshopify.com'
 const SHOPIFY_ADMIN_TOKEN = process.env.SHOPIFY_ADMIN_API_TOKEN
 
-// Template email - NOUVEAU DESIGN
+// Template email - DESIGN FINAL
 const getWelcomeEmailTemplate = (firstName, discountCode, expirationDate) => {
   return `
 <html lang="fr">
@@ -60,16 +60,20 @@ const getWelcomeEmailTemplate = (firstName, discountCode, expirationDate) => {
 
           <!-- CONTENU PRINCIPAL -->
           <tr>
-            <td class="content-section" style="padding: 48px 40px !important; background-color: #FAF9F9 !important;">
+            <td class="content-section" style="padding: 48px 40px 24px 40px !important; background-color: #FAF9F9 !important;">
               <p class="text-dark" style="margin: 0 0 20px 0 !important; color: #22192E !important; font-size: 17px !important; font-family: 'Archivo', -apple-system, sans-serif !important;">
                 Salut <strong style="font-weight: 700 !important; color: #BC6170 !important;">${firstName}</strong> 👋
               </p>
               <p class="text-gray" style="margin: 0 0 24px 0 !important; color: #4a5568 !important; font-size: 16px !important; line-height: 1.6 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">
                 Merci d'avoir rejoint la famille Aloha ! Ton compte a été créé avec succès et tu peux dès maintenant profiter de notre programme de fidélité.
               </p>
-              
-              <!-- CARTE CODE PROMO -->
-              <table role="presentation" style="width: 100% !important; background: #22192E !important; border-radius: 16px !important; margin-bottom: 24px !important;">
+            </td>
+          </tr>
+
+          <!-- CARTE CODE PROMO -->
+          <tr>
+            <td style="padding: 0 24px 24px 24px !important; background-color: #FAF9F9 !important;">
+              <table role="presentation" style="width: 100% !important; background: #22192E !important; border-radius: 16px !important;">
                 <tr>
                   <td style="padding: 32px 24px !important; text-align: center !important;">
                     <p style="margin: 0 0 16px 0 !important; color: #FAF9F9 !important; font-size: 15px !important; font-weight: 600 !important; font-family: 'Archivo', -apple-system, sans-serif !important; text-transform: uppercase !important; letter-spacing: 1px !important; opacity: 0.9 !important;">
@@ -87,9 +91,13 @@ const getWelcomeEmailTemplate = (firstName, discountCode, expirationDate) => {
                   </td>
                 </tr>
               </table>
+            </td>
+          </tr>
 
-              <!-- BOX PROGRAMME FIDELITÉ AVEC BOUTON INTÉGRÉ -->
-              <table role="presentation" style="width: 100% !important; background: #EFEDEE !important; border-radius: 16px !important; margin-bottom: 24px !important;">
+          <!-- BOX PROGRAMME FIDELITÉ AVEC BOUTON INTÉGRÉ -->
+          <tr>
+            <td style="padding: 0 24px 24px 24px !important; background-color: #FAF9F9 !important;">
+              <table role="presentation" style="width: 100% !important; background: #EFEDEE !important; border-radius: 16px !important;">
                 <tr>
                   <td style="padding: 24px !important;">
                     <p style="margin: 0 0 16px 0 !important; color: #22192E !important; font-size: 16px !important; font-weight: 700 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">
