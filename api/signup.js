@@ -12,112 +12,168 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 const SHOPIFY_DOMAIN = process.env.SHOPIFY_DOMAIN || 'f8bnjk-2f.myshopify.com'
 const SHOPIFY_ADMIN_TOKEN = process.env.SHOPIFY_ADMIN_API_TOKEN
 
-// Template email
+// Template email - NOUVEAU DESIGN
 const getWelcomeEmailTemplate = (firstName, discountCode, expirationDate) => {
   return `
-<!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light only">
+  <meta name="supported-color-schemes" content="light">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap');
+    
+    /* Force light mode */
+    :root {
+      color-scheme: light only !important;
+      supported-color-schemes: light !important;
+    }
+    
+    /* Protection dark mode pour tous les clients */
+    @media (prefers-color-scheme: dark) {
+      .email-container { background-color: #EACDC2 !important; }
+      .email-card { background-color: #FAF9F9 !important; }
+      .header-section { background: linear-gradient(135deg, #BC6170 0%, #9d5260 100%) !important; }
+      .content-section { background-color: #FAF9F9 !important; color: #22192E !important; }
+      .footer-section { background-color: #EFEDEE !important; }
+      .text-dark { color: #22192E !important; }
+      .text-gray { color: #4a5568 !important; }
+      .text-light-gray { color: #718096 !important; }
+    }
+  </style>
 </head>
-<body style="margin: 0; padding: 0; font-family: 'Archivo', Arial, sans-serif; background-color: #f5f5f5;">
-    <table role="presentation" style="width: 100%; border-collapse: collapse;">
-        <tr>
-            <td style="padding: 40px 20px;">
-                <table role="presentation" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
-                    
-                    <tr>
-                        <td style="background: linear-gradient(135deg, #22192E 0%, #3d2f52 100%); padding: 40px 30px; text-align: center;">
-                            <h1 style="margin: 0; color: #FAF9F9; font-size: 32px; font-weight: 700; font-family: 'Archivo', sans-serif;">
-                                🌺 Aloha
-                            </h1>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td style="padding: 40px 30px;">
-                            <h2 style="margin: 0 0 16px 0; color: #22192E; font-size: 24px; font-weight: 700; font-family: 'Archivo', sans-serif;">
-                                Bienvenue ${firstName} ! 🎉
-                            </h2>
-                            
-                            <p style="margin: 0 0 20px 0; color: #4a5568; font-size: 16px; line-height: 1.6; font-family: 'Archivo', sans-serif;">
-                                Merci d'avoir rejoint la famille Aloha ! Votre compte a été créé avec succès et vous pouvez dès maintenant profiter de notre programme de fidélité.
-                            </p>
-
-                            <p style="margin: 0 0 30px 0; color: #4a5568; font-size: 16px; line-height: 1.6; font-family: 'Archivo', sans-serif;">
-                                Pour fêter votre arrivée, nous vous offrons <strong style="color: #FE7BFC;">10% de réduction</strong> sur votre première commande avec le code ci-dessous :
-                            </p>
-
-                            <table role="presentation" style="width: 100%; border-collapse: collapse; margin: 0 0 30px 0;">
-                                <tr>
-                                    <td style="background: linear-gradient(135deg, #FE7BFC 0%, #d946ef 100%); border-radius: 12px; padding: 30px; text-align: center;">
-                                        <p style="margin: 0 0 12px 0; color: #FAF9F9; font-size: 14px; font-weight: 600; font-family: 'Archivo', sans-serif; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9;">
-                                            Votre code promo
-                                        </p>
-                                        <p style="margin: 0 0 8px 0; color: #FAF9F9; font-size: 32px; font-weight: 700; font-family: 'Archivo', sans-serif; letter-spacing: 3px;">
-                                            ${discountCode}
-                                        </p>
-                                        <p style="margin: 0; color: #FAF9F9; font-size: 12px; font-family: 'Archivo', sans-serif; opacity: 0.85;">
-                                            Valable jusqu'au ${expirationDate}
-                                        </p>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <div style="background: #FAF9F9; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin: 0 0 30px 0;">
-                                <h3 style="margin: 0 0 16px 0; color: #22192E; font-size: 18px; font-weight: 700; font-family: 'Archivo', sans-serif;">
-                                    🎁 Votre programme de fidélité
-                                </h3>
-                                
-                                <ul style="margin: 0; padding: 0; list-style: none;">
-                                    <li style="margin: 0 0 12px 0; padding-left: 24px; position: relative; color: #4a5568; font-size: 14px; line-height: 1.6; font-family: 'Archivo', sans-serif;">
-                                        <span style="position: absolute; left: 0; color: #5938DE;">✓</span>
-                                        <strong>0,5 point</strong> par euro dépensé
-                                    </li>
-                                    <li style="margin: 0 0 12px 0; padding-left: 24px; position: relative; color: #4a5568; font-size: 14px; line-height: 1.6; font-family: 'Archivo', sans-serif;">
-                                        <span style="position: absolute; left: 0; color: #5938DE;">✓</span>
-                                        Convertissez vos points en <strong>codes promo</strong>
-                                    </li>
-                                    <li style="margin: 0 0 12px 0; padding-left: 24px; position: relative; color: #4a5568; font-size: 14px; line-height: 1.6; font-family: 'Archivo', sans-serif;">
-                                        <span style="position: absolute; left: 0; color: #5938DE;">✓</span>
-                                        Débloquez des <strong>cartes cadeaux exclusives</strong>
-                                    </li>
-                                    <li style="margin: 0; padding-left: 24px; position: relative; color: #4a5568; font-size: 14px; line-height: 1.6; font-family: 'Archivo', sans-serif;">
-                                        <span style="position: absolute; left: 0; color: #5938DE;">✓</span>
-                                        5 paliers : Bronze, Argent, Or, Diamant, Maître
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <table role="presentation" style="width: 100%; border-collapse: collapse;">
-                                <tr>
-                                    <td style="text-align: center; padding: 0 0 20px 0;">
-                                        <a href="https://f8bnjk-2f.myshopify.com" style="display: inline-block; background: #22192E; color: #FAF9F9; text-decoration: none; padding: 16px 40px; border-radius: 10px; font-size: 16px; font-weight: 700; font-family: 'Archivo', sans-serif;">
-                                            Découvrir la boutique
-                                        </a>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td style="background: #FAF9F9; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
-                            <p style="margin: 0 0 8px 0; color: #718096; font-size: 12px; font-family: 'Archivo', sans-serif;">
-                                Questions ? Contactez-nous à <a href="mailto:contact@aloha.com" style="color: #5938DE; text-decoration: none;">contact@aloha.com</a>
-                            </p>
-                            <p style="margin: 0; color: #a0aec0; font-size: 11px; font-family: 'Archivo', sans-serif;">
-                                © 2025 Aloha. Tous droits réservés.
-                            </p>
-                        </td>
-                    </tr>
-
-                </table>
+<body style="margin: 0 !important; padding: 0 !important; font-family: 'Archivo', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important; background-color: #EACDC2 !important; color-scheme: light only !important;">
+  <table role="presentation" class="email-container" style="width: 100% !important; border-collapse: collapse !important; background-color: #EACDC2 !important;">
+    <tr>
+      <td align="center" style="padding: 40px 20px !important;">
+        <table role="presentation" class="email-card" style="max-width: 600px !important; width: 100% !important; border-collapse: collapse !important; background: #FAF9F9 !important; border-radius: 24px !important; overflow: hidden !important; box-shadow: 0 10px 40px rgba(34, 25, 46, 0.12) !important;">
+          
+          <!-- HEADER AVEC SMILEY -->
+          <tr>
+            <td class="header-section" style="background: linear-gradient(135deg, #BC6170 0%, #9d5260 100%) !important; padding: 24px 40px !important; text-align: center !important;">
+              <img src="https://xdkdxtrlldghcwymbttt.supabase.co/storage/v1/object/public/email-assets/SMILEY%202.png" alt="Aloha" style="width: 140px !important; height: 140px !important; margin: 0 auto 12px !important; display: block !important;" />
+              <h2 style="margin: 0 0 6px 0 !important; color: #FAF9F9 !important; font-size: 28px !important; font-weight: 700 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">Bienvenue chez Aloha</h2>
+              <p style="margin: 0 !important; color: #FAF9F9 !important; opacity: 0.85 !important; font-size: 16px !important; font-family: 'Archivo', -apple-system, sans-serif !important;">Ton aventure commence maintenant 🌺</p>
             </td>
-        </tr>
-    </table>
+          </tr>
+
+          <!-- CONTENU PRINCIPAL -->
+          <tr>
+            <td class="content-section" style="padding: 48px 40px !important; background-color: #FAF9F9 !important;">
+              <p class="text-dark" style="margin: 0 0 20px 0 !important; color: #22192E !important; font-size: 17px !important; font-family: 'Archivo', -apple-system, sans-serif !important;">
+                Salut <strong style="font-weight: 700 !important; color: #BC6170 !important;">${firstName}</strong> 👋
+              </p>
+              <p class="text-gray" style="margin: 0 0 24px 0 !important; color: #4a5568 !important; font-size: 16px !important; line-height: 1.6 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">
+                Merci d'avoir rejoint la famille Aloha ! Ton compte a été créé avec succès et tu peux dès maintenant profiter de notre programme de fidélité.
+              </p>
+              
+              <!-- CARTE CODE PROMO -->
+              <table role="presentation" style="width: 100% !important; background: linear-gradient(135deg, #FE7BFC 0%, #d946ef 100%) !important; border-radius: 16px !important; margin-bottom: 32px !important;">
+                <tr>
+                  <td style="padding: 32px 24px !important; text-align: center !important;">
+                    <p style="margin: 0 0 16px 0 !important; color: #FAF9F9 !important; font-size: 15px !important; font-weight: 600 !important; font-family: 'Archivo', -apple-system, sans-serif !important; text-transform: uppercase !important; letter-spacing: 1px !important; opacity: 0.9 !important;">
+                      🎁 Cadeau de bienvenue
+                    </p>
+                    <p style="margin: 0 0 12px 0 !important; color: #FAF9F9 !important; font-size: 40px !important; font-weight: 700 !important; font-family: 'Archivo', -apple-system, sans-serif !important; letter-spacing: 3px !important;">
+                      ${discountCode}
+                    </p>
+                    <p style="margin: 0 0 8px 0 !important; color: #FAF9F9 !important; font-size: 18px !important; font-weight: 600 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">
+                      10% de réduction
+                    </p>
+                    <p style="margin: 0 !important; color: #FAF9F9 !important; font-size: 13px !important; font-family: 'Archivo', -apple-system, sans-serif !important; opacity: 0.85 !important;">
+                      Valable jusqu'au ${expirationDate}
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- BOX PROGRAMME FIDELITÉ -->
+              <table role="presentation" style="width: 100% !important; background: #EFEDEE !important; border-radius: 16px !important; margin-bottom: 32px !important;">
+                <tr>
+                  <td style="padding: 24px !important;">
+                    <p style="margin: 0 0 16px 0 !important; color: #22192E !important; font-size: 16px !important; font-weight: 700 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">
+                      🎁 Ton programme de fidélité
+                    </p>
+                    <table role="presentation" style="width: 100% !important;">
+                      <tr>
+                        <td style="padding: 8px 0 !important;">
+                          <p style="margin: 0 !important; color: #4a5568 !important; font-size: 14px !important; line-height: 1.6 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">
+                            <span style="color: #BC6170 !important; font-weight: 700 !important;">✓</span> <strong>0,5 point</strong> par euro dépensé
+                          </p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0 !important;">
+                          <p style="margin: 0 !important; color: #4a5568 !important; font-size: 14px !important; line-height: 1.6 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">
+                            <span style="color: #BC6170 !important; font-weight: 700 !important;">✓</span> Convertis tes points en <strong>codes promo</strong>
+                          </p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0 !important;">
+                          <p style="margin: 0 !important; color: #4a5568 !important; font-size: 14px !important; line-height: 1.6 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">
+                            <span style="color: #BC6170 !important; font-weight: 700 !important;">✓</span> Débloque des <strong>cartes cadeaux exclusives</strong>
+                          </p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0 !important;">
+                          <p style="margin: 0 !important; color: #4a5568 !important; font-size: 14px !important; line-height: 1.6 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">
+                            <span style="color: #BC6170 !important; font-weight: 700 !important;">✓</span> 5 paliers : Bronze, Argent, Or, Diamant, Maître
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- BOUTON MON COMPTE -->
+              <table role="presentation" style="width: 100% !important; border-collapse: collapse !important;">
+                <tr>
+                  <td align="center" style="padding: 8px 0 24px 0 !important;">
+                    <a href="https://aloha-cbd.fr/mon-compte" style="display: inline-block !important; background: #FE7BFF !important; color: #22192E !important; text-decoration: none !important; padding: 18px 48px !important; border-radius: 16px !important; font-size: 17px !important; font-weight: 700 !important; font-family: 'Archivo', -apple-system, sans-serif !important; box-shadow: 0 4px 14px rgba(254, 123, 255, 0.4) !important;">
+                      Accéder à mon espace
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- IMAGE SOCIAL PREVIEW AVEC BOUTON CENTRÉ -->
+          <tr>
+            <td style="padding: 0 24px 24px 24px !important; background-color: #FAF9F9 !important;">
+              <table role="presentation" style="width: 100% !important; border-collapse: collapse !important; background-image: url('https://xdkdxtrlldghcwymbttt.supabase.co/storage/v1/object/public/email-assets/SOCIAL%20PREVIEW.png') !important; background-size: cover !important; background-position: center !important; border-radius: 16px !important; height: 300px !important;">
+                <tr>
+                  <td align="center" valign="middle" style="height: 300px !important;">
+                    <a href="https://aloha-cbd.fr" style="display: inline-block !important; background: #22192E !important; color: #FAF9F9 !important; text-decoration: none !important; padding: 16px 40px !important; border-radius: 14px !important; font-size: 16px !important; font-weight: 700 !important; font-family: 'Archivo', -apple-system, sans-serif !important; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;">
+                      Découvrir la boutique
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- FOOTER -->
+          <tr>
+            <td class="footer-section" style="padding: 32px 40px !important; text-align: center !important; background: #EFEDEE !important;">
+              <p class="text-dark" style="margin: 0 0 16px 0 !important; color: #22192E !important; font-size: 16px !important; font-weight: 600 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">L'équipe Aloha</p>
+              <p style="margin: 0 0 16px 0 !important; font-size: 14px !important; font-family: 'Archivo', -apple-system, sans-serif !important;">
+                <a href="https://aloha-cbd.fr/mon-compte" style="color: #22192E !important; text-decoration: none !important; margin: 0 10px !important; font-weight: 500 !important;">Mon compte</a>
+                <span style="color: #BC6170 !important;">•</span>
+                <a href="https://aloha-cbd.fr/contact" style="color: #22192E !important; text-decoration: none !important; margin: 0 10px !important; font-weight: 500 !important;">Support</a>
+              </p>
+              <p class="text-light-gray" style="margin: 0 !important; color: #718096 !important; font-size: 12px !important; font-family: 'Archivo', -apple-system, sans-serif !important;">© ${new Date().getFullYear()} Aloha CBD. Tous droits réservés.</p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>
   `
