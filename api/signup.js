@@ -88,14 +88,14 @@ const getWelcomeEmailTemplate = (firstName, discountCode, expirationDate) => {
                 </tr>
               </table>
 
-              <!-- BOX PROGRAMME FIDELITÉ -->
+              <!-- BOX PROGRAMME FIDELITÉ AVEC BOUTON INTÉGRÉ -->
               <table role="presentation" style="width: 100% !important; background: #EFEDEE !important; border-radius: 16px !important; margin-bottom: 32px !important;">
                 <tr>
                   <td style="padding: 24px !important;">
                     <p style="margin: 0 0 16px 0 !important; color: #22192E !important; font-size: 16px !important; font-weight: 700 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">
                       Ton programme de fidélité
                     </p>
-                    <table role="presentation" style="width: 100% !important;">
+                    <table role="presentation" style="width: 100% !important; margin-bottom: 24px !important;">
                       <tr>
                         <td style="padding: 8px 0 !important;">
                           <p style="margin: 0 !important; color: #4a5568 !important; font-size: 14px !important; line-height: 1.6 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">
@@ -125,17 +125,17 @@ const getWelcomeEmailTemplate = (firstName, discountCode, expirationDate) => {
                         </td>
                       </tr>
                     </table>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- BOUTON MON COMPTE -->
-              <table role="presentation" style="width: 100% !important; border-collapse: collapse !important;">
-                <tr>
-                  <td align="center" style="padding: 8px 0 24px 0 !important;">
-                    <a href="https://aloha-cbd.fr/mon-compte" style="display: inline-block !important; background: #FE7BFF !important; color: #22192E !important; text-decoration: none !important; padding: 18px 48px !important; border-radius: 16px !important; font-size: 17px !important; font-weight: 700 !important; font-family: 'Archivo', -apple-system, sans-serif !important; box-shadow: 0 4px 14px rgba(254, 123, 255, 0.4) !important;">
-                      Accéder à mon espace
-                    </a>
+                    
+                    <!-- BOUTON INTÉGRÉ DANS LA BOX -->
+                    <table role="presentation" style="width: 100% !important; border-collapse: collapse !important;">
+                      <tr>
+                        <td align="center" style="padding: 8px 0 0 0 !important;">
+                          <a href="https://aloha-cbd.fr/mon-compte" style="display: inline-block !important; background: #FE7BFF !important; color: #22192E !important; text-decoration: none !important; padding: 16px 40px !important; border-radius: 14px !important; font-size: 16px !important; font-weight: 700 !important; font-family: 'Archivo', -apple-system, sans-serif !important; box-shadow: 0 4px 14px rgba(254, 123, 255, 0.4) !important;">
+                            Accéder à mon espace
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
                   </td>
                 </tr>
               </table>
@@ -398,7 +398,7 @@ export default async function handler(req, res) {
     await resend.emails.send({
   from: 'ALOHA CBD <hello@noreply.aloha-cbd.fr>',  // ✅ Correct
   to: [email],
-  subject: `Bienvenue ${firstName} ! Voici 10% de réduction 🎉`,
+  subject: `Bienvenue ${firstName} ! Voici 10% de réduction`,
   html: emailHtml,
 })
 
