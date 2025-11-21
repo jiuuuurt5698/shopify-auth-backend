@@ -128,15 +128,21 @@ export default async function handler(req, res) {
             </td>
           </tr>
 
-          <!-- IMAGE SOCIAL PREVIEW AVEC BOUTON -->
+          <!-- IMAGE SOCIAL PREVIEW AVEC BOUTON EN BACKGROUND -->
           <tr>
-            <td style="padding: 0 24px 24px 24px; position: relative;">
-              <img src="https://xdkdxtrlldghcwymbttt.supabase.co/storage/v1/object/public/email-assets/SOCIAL%20PREVIEW.png" alt="Aloha Social" style="width: 100%; display: block; border-radius: 16px;" />
-              <div style="text-align: center; margin-top: -50px; position: relative; z-index: 10;">
-                <a href="https://aloha-cbd.fr" style="display: inline-block; background: #22192E; color: #FAF9F9; text-decoration: none; padding: 16px 40px; border-radius: 14px; font-size: 16px; font-weight: 700; font-family: 'Archivo', sans-serif; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);">
-                  Découvrir la boutique
-                </a>
-              </div>
+            <td style="padding: 0 24px 24px 24px;">
+              <table role="presentation" style="width: 100%; border-collapse: collapse; background-image: url('https://xdkdxtrlldghcwymbttt.supabase.co/storage/v1/object/public/email-assets/SOCIAL%20PREVIEW.png'); background-size: cover; background-position: center; border-radius: 16px; min-height: 300px;">
+                <tr>
+                  <td align="center" valign="bottom" style="padding: 0 0 40px 0;">
+                    <a href="https://aloha-cbd.fr" style="display: inline-block; background: #22192E; color: #FAF9F9; text-decoration: none; padding: 16px 40px; border-radius: 14px; font-size: 16px; font-weight: 700; font-family: 'Archivo', sans-serif; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);">
+                      Découvrir la boutique
+                    </a>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="height: 260px;"></td>
+                </tr>
+              </table>
             </td>
           </tr>
 
