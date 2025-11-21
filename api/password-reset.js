@@ -128,6 +128,13 @@ export default async function handler(req, res) {
             </td>
           </tr>
 
+          <!-- IMAGE SOCIAL PREVIEW -->
+          <tr>
+            <td style="padding: 0;">
+              <img src="https://xdkdxtrlldghcwymbttt.supabase.co/storage/v1/object/public/email-assets/SOCIAL%20PREVIEW.png" alt="Aloha Social" style="width: 100%; display: block; margin: 0;" />
+            </td>
+          </tr>
+
           <!-- FOOTER -->
           <tr>
             <td style="padding: 32px 40px; text-align: center; background: #EFEDEE;">
