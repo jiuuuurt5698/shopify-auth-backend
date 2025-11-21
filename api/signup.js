@@ -54,7 +54,7 @@ const getWelcomeEmailTemplate = (firstName, discountCode, expirationDate) => {
             <td class="header-section" style="background: linear-gradient(135deg, #BC6170 0%, #9d5260 100%) !important; padding: 24px 40px !important; text-align: center !important;">
               <img src="https://xdkdxtrlldghcwymbttt.supabase.co/storage/v1/object/public/email-assets/SMILEY%202.png" alt="Aloha" style="width: 140px !important; height: 140px !important; margin: 0 auto 12px !important; display: block !important;" />
               <h2 style="margin: 0 0 6px 0 !important; color: #FAF9F9 !important; font-size: 28px !important; font-weight: 700 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">Bienvenue chez Aloha</h2>
-              <p style="margin: 0 !important; color: #FAF9F9 !important; opacity: 0.85 !important; font-size: 16px !important; font-family: 'Archivo', -apple-system, sans-serif !important;">Ton aventure commence maintenant 🌺</p>
+              <p style="margin: 0 !important; color: #FAF9F9 !important; opacity: 0.85 !important; font-size: 16px !important; font-family: 'Archivo', -apple-system, sans-serif !important;">Ton aventure commence maintenant</p>
             </td>
           </tr>
 
@@ -69,11 +69,11 @@ const getWelcomeEmailTemplate = (firstName, discountCode, expirationDate) => {
               </p>
               
               <!-- CARTE CODE PROMO -->
-              <table role="presentation" style="width: 100% !important; background: linear-gradient(135deg, #FE7BFC 0%, #d946ef 100%) !important; border-radius: 16px !important; margin-bottom: 32px !important;">
+              <table role="presentation" style="width: 100% !important; background: #22192E !important; border-radius: 16px !important; margin-bottom: 32px !important;">
                 <tr>
                   <td style="padding: 32px 24px !important; text-align: center !important;">
                     <p style="margin: 0 0 16px 0 !important; color: #FAF9F9 !important; font-size: 15px !important; font-weight: 600 !important; font-family: 'Archivo', -apple-system, sans-serif !important; text-transform: uppercase !important; letter-spacing: 1px !important; opacity: 0.9 !important;">
-                      🎁 Cadeau de bienvenue
+                      Cadeau de bienvenue
                     </p>
                     <p style="margin: 0 0 12px 0 !important; color: #FAF9F9 !important; font-size: 40px !important; font-weight: 700 !important; font-family: 'Archivo', -apple-system, sans-serif !important; letter-spacing: 3px !important;">
                       ${discountCode}
@@ -93,7 +93,7 @@ const getWelcomeEmailTemplate = (firstName, discountCode, expirationDate) => {
                 <tr>
                   <td style="padding: 24px !important;">
                     <p style="margin: 0 0 16px 0 !important; color: #22192E !important; font-size: 16px !important; font-weight: 700 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">
-                      🎁 Ton programme de fidélité
+                      Ton programme de fidélité
                     </p>
                     <table role="presentation" style="width: 100% !important;">
                       <tr>
@@ -179,9 +179,10 @@ const getWelcomeEmailTemplate = (firstName, discountCode, expirationDate) => {
   `
 }
 
+
 // Fonction pour créer le code promo Shopify
 async function createShopifyDiscountCode(email, firstName) {
-  const code = `BIENVENUE${firstName.toUpperCase().replace(/[^A-Z]/g, '')}${Date.now().toString().slice(-4)}`
+  const code = `BIENVENUE${Date.now().toString().slice(-4)}`
   
   const expirationDate = new Date()
   expirationDate.setDate(expirationDate.getDate() + 30)
