@@ -80,57 +80,57 @@ export default async function handler(req, res) {
   <table role="presentation" style="width: 100%; border-collapse: collapse;">
     <tr>
       <td align="center" style="padding: 40px 20px;">
-        <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse;">
+        <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background: #FAF9F9; border-radius: 24px; overflow: hidden; box-shadow: 0 10px 40px rgba(34, 25, 46, 0.12);">
+          
+          <!-- HEADER AVEC SMILEY -->
           <tr>
-            <td>
-              <table role="presentation" style="width: 100%; background: #FAF9F9; border-radius: 24px; overflow: hidden; box-shadow: 0 10px 40px rgba(34, 25, 46, 0.12);">
+            <td style="background: linear-gradient(135deg, #BC6170 0%, #9d5260 100%); padding: 32px 40px; text-align: center;">
+              <img src="https://xdkdxtrlldghcwymbttt.supabase.co/storage/v1/object/public/email-assets/SMILEY%202.png" alt="Aloha" style="width: 140px; height: 140px; margin: 0 auto 16px; display: block;" />
+              <h2 style="margin: 0 0 8px 0; color: #FAF9F9; font-size: 28px; font-weight: 700; font-family: 'Archivo', sans-serif;">Réinitialisation</h2>
+              <p style="margin: 0; color: rgba(250, 249, 249, 0.85); font-size: 16px; font-family: 'Archivo', sans-serif;">de votre mot de passe</p>
+            </td>
+          </tr>
+
+          <!-- CONTENU PRINCIPAL -->
+          <tr>
+            <td style="padding: 48px 40px;">
+              <p style="margin: 0 0 20px 0; color: #22192E; font-size: 17px; font-family: 'Archivo', sans-serif;">
+                Salut <strong style="font-weight: 700; color: #BC6170;">${user.first_name}</strong> 👋
+              </p>
+              <p style="margin: 0 0 32px 0; color: #4a5568; font-size: 16px; line-height: 1.6; font-family: 'Archivo', sans-serif;">
+                Pas de panique ! On a reçu ta demande de réinitialisation de mot de passe. Clique sur le bouton ci-dessous pour créer ton nouveau mot de passe.
+              </p>
+              <table role="presentation" style="width: 100%; border-collapse: collapse;">
                 <tr>
-                  <td style="background: linear-gradient(135deg, #BC6170 0%, #9d5260 100%); padding: 48px 40px; text-align: center;">
-                    <img src="https://xdkdxtrlldghcwymbttt.supabase.co/storage/v1/object/public/email-assets/SMILEY%202.png" alt="Aloha" style="width: 120px; height: 120px; margin: 0 auto 24px; display: block;" />
-                    <h2 style="margin: 0; color: #FAF9F9; font-size: 28px; font-weight: 700; font-family: 'Archivo', sans-serif;">Réinitialisation</h2>
-                    <p style="margin: 12px 0 0 0; color: rgba(250, 249, 249, 0.85); font-size: 16px; font-family: 'Archivo', sans-serif;">de votre mot de passe</p>
+                  <td align="center" style="padding: 8px 0 40px 0;">
+                    <a href="${resetUrl}" style="display: inline-block; background: #FE7BFF; color: #22192E; text-decoration: none; padding: 18px 48px; border-radius: 16px; font-size: 17px; font-weight: 700; font-family: 'Archivo', sans-serif; box-shadow: 0 8px 24px rgba(254, 123, 255, 0.35);">
+                      Réinitialiser mon mot de passe
+                    </a>
                   </td>
                 </tr>
+              </table>
+              <table role="presentation" style="width: 100%; background: #FEF3C7; border-radius: 16px; border-left: 5px solid #F59E0B;">
                 <tr>
-                  <td style="padding: 48px 40px;">
-                    <p style="margin: 0 0 20px 0; color: #22192E; font-size: 17px; font-family: 'Archivo', sans-serif;">
-                      Salut <strong style="font-weight: 700; color: #BC6170;">${user.first_name}</strong> 👋
-                    </p>
-                    <p style="margin: 0 0 32px 0; color: #4a5568; font-size: 16px; line-height: 1.6; font-family: 'Archivo', sans-serif;">
-                      Pas de panique ! On a reçu ta demande de réinitialisation de mot de passe. Clique sur le bouton ci-dessous pour créer ton nouveau mot de passe.
-                    </p>
-                    <table role="presentation" style="width: 100%; border-collapse: collapse;">
-                      <tr>
-                        <td align="center" style="padding: 8px 0 40px 0;">
-                          <a href="${resetUrl}" style="display: inline-block; background: #FE7BFF; color: #22192E; text-decoration: none; padding: 18px 48px; border-radius: 16px; font-size: 17px; font-weight: 700; font-family: 'Archivo', sans-serif; box-shadow: 0 8px 24px rgba(254, 123, 255, 0.35);">
-                            Réinitialiser mon mot de passe
-                          </a>
-                        </td>
-                      </tr>
-                    </table>
-                    <table role="presentation" style="width: 100%; background: #FEF3C7; border-radius: 16px; border-left: 5px solid #F59E0B;">
-                      <tr>
-                        <td style="padding: 24px;">
-                          <p style="margin: 0 0 8px 0; color: #78350f; font-size: 15px; font-weight: 700; font-family: 'Archivo', sans-serif;">⏱️ Attention</p>
-                          <p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.6; font-family: 'Archivo', sans-serif;">
-                            Ce lien expire dans <strong>1 heure</strong>. Si tu n'as pas demandé cette réinitialisation, ignore simplement cet email.
-                          </p>
-                        </td>
-                      </tr>
-                    </table>
-                    <p style="margin: 32px 0 0 0; color: #718096; font-size: 13px; font-family: 'Archivo', sans-serif; text-align: center;">
-                      Le bouton ne fonctionne pas ? Copie ce lien dans ton navigateur :
-                    </p>
-                    <p style="margin: 12px 0 0 0; text-align: center;">
-                      <a href="${resetUrl}" style="color: #BC6170; font-size: 12px; word-break: break-all; font-family: 'Archivo', sans-serif; text-decoration: none;">${resetUrl}</a>
+                  <td style="padding: 24px;">
+                    <p style="margin: 0 0 8px 0; color: #78350f; font-size: 15px; font-weight: 700; font-family: 'Archivo', sans-serif;">⏱️ Attention</p>
+                    <p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.6; font-family: 'Archivo', sans-serif;">
+                      Ce lien expire dans <strong>1 heure</strong>. Si tu n'as pas demandé cette réinitialisation, ignore simplement cet email.
                     </p>
                   </td>
                 </tr>
               </table>
+              <p style="margin: 32px 0 0 0; color: #718096; font-size: 13px; font-family: 'Archivo', sans-serif; text-align: center;">
+                Le bouton ne fonctionne pas ? Copie ce lien dans ton navigateur :
+              </p>
+              <p style="margin: 12px 0 0 0; text-align: center;">
+                <a href="${resetUrl}" style="color: #BC6170; font-size: 12px; word-break: break-all; font-family: 'Archivo', sans-serif; text-decoration: none;">${resetUrl}</a>
+              </p>
             </td>
           </tr>
+
+          <!-- FOOTER -->
           <tr>
-            <td style="padding: 32px 20px 0 20px; text-align: center;">
+            <td style="padding: 32px 40px; text-align: center; background: #EFEDEE;">
               <p style="margin: 0 0 16px 0; color: #22192E; font-size: 16px; font-weight: 600; font-family: 'Archivo', sans-serif;">L'équipe Aloha 🌺</p>
               <p style="margin: 0 0 16px 0; font-size: 14px; font-family: 'Archivo', sans-serif;">
                 <a href="https://aloha-cbd.fr" style="color: #22192E; text-decoration: none; margin: 0 10px; font-weight: 500;">Boutique</a>
@@ -142,6 +142,7 @@ export default async function handler(req, res) {
               <p style="margin: 0; color: #718096; font-size: 12px; font-family: 'Archivo', sans-serif;">© ${new Date().getFullYear()} Aloha CBD. Tous droits réservés.</p>
             </td>
           </tr>
+
         </table>
       </td>
     </tr>
