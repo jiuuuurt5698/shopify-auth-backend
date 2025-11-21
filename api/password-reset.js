@@ -84,9 +84,9 @@ export default async function handler(req, res) {
           
           <!-- HEADER AVEC SMILEY -->
           <tr>
-            <td style="background: linear-gradient(135deg, #BC6170 0%, #9d5260 100%); padding: 32px 40px; text-align: center;">
-              <img src="https://xdkdxtrlldghcwymbttt.supabase.co/storage/v1/object/public/email-assets/SMILEY%202.png" alt="Aloha" style="width: 140px; height: 140px; margin: 0 auto 16px; display: block;" />
-              <h2 style="margin: 0 0 8px 0; color: #FAF9F9; font-size: 28px; font-weight: 700; font-family: 'Archivo', sans-serif;">Réinitialisation</h2>
+            <td style="background: linear-gradient(135deg, #BC6170 0%, #9d5260 100%); padding: 24px 40px; text-align: center;">
+              <img src="https://xdkdxtrlldghcwymbttt.supabase.co/storage/v1/object/public/email-assets/SMILEY%202.png" alt="Aloha" style="width: 140px; height: 140px; margin: 0 auto 12px; display: block;" />
+              <h2 style="margin: 0 0 6px 0; color: #FAF9F9; font-size: 28px; font-weight: 700; font-family: 'Archivo', sans-serif;">Réinitialisation</h2>
               <p style="margin: 0; color: rgba(250, 249, 249, 0.85); font-size: 16px; font-family: 'Archivo', sans-serif;">de votre mot de passe</p>
             </td>
           </tr>
@@ -103,13 +103,13 @@ export default async function handler(req, res) {
               <table role="presentation" style="width: 100%; border-collapse: collapse;">
                 <tr>
                   <td align="center" style="padding: 8px 0 40px 0;">
-                    <a href="${resetUrl}" style="display: inline-block; background: #FE7BFF; color: #22192E; text-decoration: none; padding: 18px 48px; border-radius: 16px; font-size: 17px; font-weight: 700; font-family: 'Archivo', sans-serif; box-shadow: 0 8px 24px rgba(254, 123, 255, 0.35);">
+                    <a href="${resetUrl}" style="display: inline-block; background: #FE7BFF; color: #22192E; text-decoration: none; padding: 18px 48px; border-radius: 16px; font-size: 17px; font-weight: 700; font-family: 'Archivo', sans-serif; box-shadow: 0 4px 14px rgba(254, 123, 255, 0.4);">
                       Réinitialiser mon mot de passe
                     </a>
                   </td>
                 </tr>
               </table>
-              <table role="presentation" style="width: 100%; background: #FEF3C7; border-radius: 16px; border-left: 5px solid #F59E0B;">
+              <table role="presentation" style="width: 100%; background: #FEF3C7; border-radius: 16px;">
                 <tr>
                   <td style="padding: 24px;">
                     <p style="margin: 0 0 8px 0; color: #78350f; font-size: 15px; font-weight: 700; font-family: 'Archivo', sans-serif;">⏱️ Attention</p>
