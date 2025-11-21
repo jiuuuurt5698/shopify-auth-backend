@@ -86,7 +86,10 @@ export default async function handler(req, res) {
               <table role="presentation" style="width: 100%; background: #FAF9F9; border-radius: 24px; overflow: hidden; box-shadow: 0 10px 40px rgba(34, 25, 46, 0.12);">
                 <tr>
                   <td style="background: linear-gradient(135deg, #BC6170 0%, #9d5260 100%); padding: 48px 40px; text-align: center;">
-                    <img src="https://i.imgur.com/k3WafVS.png" alt="Aloha" style="width: 120px; height: 120px; margin: 0 auto 24px; display: block;" />
+                    <div style="width: 120px; height: 120px; margin: 0 auto 24px; background: #FE7BFF; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; border: 4px solid #22192E;">
+                      <div style="width: 20px; height: 35px; background: #22192E; border-radius: 50%; margin: 0 8px; display: inline-block;"></div>
+                      <div style="width: 20px; height: 35px; background: #22192E; border-radius: 50%; margin: 0 8px; display: inline-block;"></div>
+                    </div>
                     <h2 style="margin: 0; color: #FAF9F9; font-size: 28px; font-weight: 700; font-family: 'Archivo', sans-serif;">Réinitialisation</h2>
                     <p style="margin: 12px 0 0 0; color: rgba(250, 249, 249, 0.85); font-size: 16px; font-family: 'Archivo', sans-serif;">de votre mot de passe</p>
                   </td>
