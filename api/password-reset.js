@@ -64,7 +64,7 @@ export default async function handler(req, res) {
 
       try {
         const { data, error } = await resend.emails.send({
-          from: 'Aloha <noreply@noreply.aloha-cbd.fr>',
+          from: 'ALOHA CBD <hello@noreply.aloha-cbd.fr>',
           to: email,
           subject: 'Réinitialisation de votre mot de passe',
           html: `<!DOCTYPE html>
