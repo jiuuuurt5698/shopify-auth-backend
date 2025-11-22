@@ -14,93 +14,142 @@ const SHOPIFY_ACCESS_TOKEN = process.env.SHOPIFY_ACCESS_TOKEN
 // Ratio: 10 points = 1€ de réduction
 const POINTS_TO_EURO_RATIO = 10
 
-// 🎯 FONCTION D'ENVOI D'EMAIL
+// 🎯 FONCTION D'ENVOI D'EMAIL - DESIGN FINAL ALOHA
 const sendDiscountEmail = async (email, firstName, discountCode, pointsUsed, discountValue, expirationDate) => {
   const emailHtml = `
-<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light only">
+  <meta name="supported-color-schemes" content="light">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap');
+    
+    /* Force light mode */
+    :root {
+      color-scheme: light only !important;
+      supported-color-schemes: light !important;
+    }
+    
+    /* Protection dark mode pour tous les clients */
+    @media (prefers-color-scheme: dark) {
+      .email-container { background-color: #EACDC2 !important; }
+      .email-card { background-color: #FAF9F9 !important; }
+      .header-section { background: linear-gradient(135deg, #BC6170 0%, #9d5260 100%) !important; }
+      .content-section { background-color: #FAF9F9 !important; color: #22192E !important; }
+      .footer-section { background-color: #EFEDEE !important; }
+      .text-dark { color: #22192E !important; }
+      .text-gray { color: #4a5568 !important; }
+      .text-light-gray { color: #718096 !important; }
+    }
+  </style>
 </head>
-<body style="margin: 0; padding: 0; font-family: 'Archivo', -apple-system, sans-serif; background-color: #FAF9F9;">
-  <table role="presentation" style="width: 100%; border-collapse: collapse;">
+<body style="margin: 0 !important; padding: 0 !important; font-family: 'Archivo', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important; background-color: #EACDC2 !important; color-scheme: light only !important;">
+  <table role="presentation" class="email-container" style="width: 100% !important; border-collapse: collapse !important; background-color: #EACDC2 !important;">
     <tr>
-      <td align="center" style="padding: 40px 20px;">
-        <table role="presentation" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
+      <td align="center" style="padding: 40px 20px !important;">
+        <table role="presentation" class="email-card" style="max-width: 600px !important; width: 100% !important; border-collapse: collapse !important; background: #FAF9F9 !important; border-radius: 24px !important; overflow: hidden !important; box-shadow: 0 10px 40px rgba(34, 25, 46, 0.12) !important;">
           
-          <!-- En-tête -->
+          <!-- HEADER AVEC SMILEY -->
           <tr>
-            <td style="background: linear-gradient(135deg, #BC6170 0%, #a84d5f 100%); padding: 40px 30px; text-align: center;">
-              <h1 style="margin: 0; color: #FAF9F9; font-size: 28px; font-weight: 700; font-family: 'Archivo', sans-serif;">
-                Votre code de réduction ! 🎁
-              </h1>
+            <td class="header-section" style="background: linear-gradient(135deg, #BC6170 0%, #9d5260 100%) !important; padding: 24px 40px !important; text-align: center !important;">
+              <img src="https://xdkdxtrlldghcwymbttt.supabase.co/storage/v1/object/public/email-assets/SMILEY%202.png" alt="Aloha" style="width: 140px !important; height: 140px !important; margin: 0 auto 12px !important; display: block !important;" />
+              <h2 style="margin: 0 0 6px 0 !important; color: #FAF9F9 !important; font-size: 28px !important; font-weight: 700 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">Ton code est prêt !</h2>
+              <p style="margin: 0 !important; color: #FAF9F9 !important; opacity: 0.85 !important; font-size: 16px !important; font-family: 'Archivo', -apple-system, sans-serif !important;">Merci de ta fidélité ✨</p>
             </td>
           </tr>
 
-          <!-- Contenu principal -->
+          <!-- CONTENU PRINCIPAL -->
           <tr>
-            <td style="padding: 40px 30px;">
-              <p style="margin: 0 0 20px 0; color: #4a5568; font-size: 16px; line-height: 1.6; font-family: 'Archivo', sans-serif;">
-                Bonjour <strong>${firstName || 'cher client'}</strong>,
+            <td class="content-section" style="padding: 48px 40px 24px 40px !important; background-color: #FAF9F9 !important;">
+              <p class="text-dark" style="margin: 0 0 20px 0 !important; color: #22192E !important; font-size: 17px !important; font-family: 'Archivo', -apple-system, sans-serif !important;">
+                Salut <strong style="font-weight: 700 !important; color: #BC6170 !important;">${firstName || 'cher client'}</strong> 👋
               </p>
-              
-              <p style="margin: 0 0 30px 0; color: #4a5568; font-size: 16px; line-height: 1.6; font-family: 'Archivo', sans-serif;">
-                Merci de votre fidélité ! Vous avez utilisé <strong style="color: #BC6170;">${pointsUsed} points</strong> pour obtenir votre code de réduction de <strong style="color: #BC6170;">${discountValue}€</strong>.
+              <p class="text-gray" style="margin: 0 0 24px 0 !important; color: #4a5568 !important; font-size: 16px !important; line-height: 1.6 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">
+                Tu as utilisé <strong style="color: #BC6170 !important;">${pointsUsed} points</strong> pour obtenir ton code de réduction de <strong style="color: #BC6170 !important;">${discountValue}€</strong>. Il est maintenant prêt à être utilisé !
               </p>
+            </td>
+          </tr>
 
-              <!-- Code promo -->
-              <table role="presentation" style="width: 100%; border-collapse: collapse; margin: 0 0 30px 0;">
+          <!-- CARTE CODE PROMO -->
+          <tr>
+            <td style="padding: 0 24px 24px 24px !important; background-color: #FAF9F9 !important;">
+              <table role="presentation" style="width: 100% !important; background: #22192E !important; border-radius: 16px !important;">
                 <tr>
-                  <td style="background: linear-gradient(135deg, #BC6170 0%, #a84d5f 100%); border-radius: 12px; padding: 30px; text-align: center;">
-                    <p style="margin: 0 0 12px 0; color: #FAF9F9; font-size: 14px; font-weight: 600; font-family: 'Archivo', sans-serif; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9;">
-                      Votre code de réduction
+                  <td style="padding: 32px 24px !important; text-align: center !important;">
+                    <p style="margin: 0 0 16px 0 !important; color: #FAF9F9 !important; font-size: 15px !important; font-weight: 600 !important; font-family: 'Archivo', -apple-system, sans-serif !important; text-transform: uppercase !important; letter-spacing: 1px !important; opacity: 0.9 !important;">
+                      Ton code de réduction
                     </p>
-                    <p style="margin: 0 0 8px 0; color: #FAF9F9; font-size: 32px; font-weight: 700; font-family: 'Archivo', sans-serif; letter-spacing: 3px;">
+                    <p style="margin: 0 0 12px 0 !important; color: #FAF9F9 !important; font-size: 40px !important; font-weight: 700 !important; font-family: 'Archivo', -apple-system, sans-serif !important; letter-spacing: 3px !important;">
                       ${discountCode}
                     </p>
-                    <p style="margin: 0; color: #FAF9F9; font-size: 12px; font-family: 'Archivo', sans-serif; opacity: 0.85;">
+                    <p style="margin: 0 0 8px 0 !important; color: #FAF9F9 !important; font-size: 18px !important; font-weight: 600 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">
+                      ${discountValue}€ de réduction
+                    </p>
+                    <p style="margin: 0 !important; color: #FAF9F9 !important; font-size: 13px !important; font-family: 'Archivo', -apple-system, sans-serif !important; opacity: 0.85 !important;">
                       Valable jusqu'au ${expirationDate}
                     </p>
                   </td>
                 </tr>
               </table>
+            </td>
+          </tr>
 
-              <!-- Bouton CTA -->
-              <table role="presentation" style="width: 100%; border-collapse: collapse; margin: 0 0 30px 0;">
+          <!-- BOX ASTUCE -->
+          <tr>
+            <td style="padding: 0 24px 24px 24px !important; background-color: #FAF9F9 !important;">
+              <table role="presentation" style="width: 100% !important; background: #EFEDEE !important; border-radius: 16px !important;">
                 <tr>
-                  <td align="center">
-                    <a href="https://aloha-cbd.fr/collections/all" style="display: inline-block; background: linear-gradient(135deg, #BC6170 0%, #a84d5f 100%); color: #FAF9F9; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-weight: 600; font-size: 16px; font-family: 'Archivo', sans-serif;">
-                      Utiliser mon code
+                  <td style="padding: 24px !important;">
+                    <p style="margin: 0 0 12px 0 !important; color: #22192E !important; font-size: 16px !important; font-weight: 700 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">
+                      💡 Comment l'utiliser ?
+                    </p>
+                    <p style="margin: 0 0 20px 0 !important; color: #4a5568 !important; font-size: 14px !important; line-height: 1.6 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">
+                      Copie ton code et colle-le lors de ta prochaine commande pour bénéficier de ta réduction immédiatement !
+                    </p>
+                    
+                    <!-- BOUTON INTÉGRÉ -->
+                    <table role="presentation" style="width: 100% !important; border-collapse: collapse !important;">
+                      <tr>
+                        <td align="center" style="padding: 8px 0 0 0 !important;">
+                          <a href="https://aloha-cbd.fr/collections/all" style="display: inline-block !important; background: #FE7BFF !important; color: #22192E !important; text-decoration: none !important; padding: 16px 40px !important; border-radius: 14px !important; font-size: 16px !important; font-weight: 700 !important; font-family: 'Archivo', -apple-system, sans-serif !important; box-shadow: 0 4px 14px rgba(254, 123, 255, 0.4) !important;">
+                            Utiliser mon code
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- IMAGE SOCIAL PREVIEW AVEC BOUTON CENTRÉ -->
+          <tr>
+            <td style="padding: 0 24px 24px 24px !important; background-color: #FAF9F9 !important;">
+              <table role="presentation" style="width: 100% !important; border-collapse: collapse !important; background-image: url('https://xdkdxtrlldghcwymbttt.supabase.co/storage/v1/object/public/email-assets/SOCIAL%20PREVIEW.png') !important; background-size: cover !important; background-position: center !important; border-radius: 16px !important; height: 300px !important;">
+                <tr>
+                  <td align="center" valign="middle" style="height: 300px !important;">
+                    <a href="https://aloha-cbd.fr" style="display: inline-block !important; background: #22192E !important; color: #FAF9F9 !important; text-decoration: none !important; padding: 16px 40px !important; border-radius: 14px !important; font-size: 16px !important; font-weight: 700 !important; font-family: 'Archivo', -apple-system, sans-serif !important; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;">
+                      Continuer mes achats
                     </a>
                   </td>
                 </tr>
               </table>
-
-              <!-- Info supplémentaire -->
-              <div style="background: #FAF9F9; border-left: 4px solid #BC6170; border-radius: 8px; padding: 20px; margin: 0;">
-                <p style="margin: 0; color: #4a5568; font-size: 14px; line-height: 1.6; font-family: 'Archivo', sans-serif;">
-                  💡 <strong>Astuce :</strong> Copiez votre code et collez-le lors de votre prochaine commande pour bénéficier de votre réduction immédiatement !
-                </p>
-              </div>
-
             </td>
           </tr>
 
-          <!-- Footer -->
+          <!-- FOOTER -->
           <tr>
-            <td style="background: #FAF9F9; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
-              <p style="margin: 0 0 15px 0; color: #4a5568; font-size: 14px; font-family: 'Archivo', sans-serif;">
-                Des questions ? Contactez-nous à <a href="mailto:contact@aloha-cbd.fr" style="color: #BC6170; text-decoration: none;">contact@aloha-cbd.fr</a>
+            <td class="footer-section" style="padding: 32px 40px !important; text-align: center !important; background: #EFEDEE !important;">
+              <p class="text-dark" style="margin: 0 0 16px 0 !important; color: #22192E !important; font-size: 16px !important; font-weight: 600 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">L'équipe Aloha</p>
+              <p style="margin: 0 0 16px 0 !important; font-size: 14px !important; font-family: 'Archivo', -apple-system, sans-serif !important;">
+                <a href="https://aloha-cbd.fr/mon-compte" style="color: #22192E !important; text-decoration: none !important; margin: 0 10px !important; font-weight: 500 !important;">Mon compte</a>
+                <span style="color: #BC6170 !important;">•</span>
+                <a href="https://aloha-cbd.fr/contact" style="color: #22192E !important; text-decoration: none !important; margin: 0 10px !important; font-weight: 500 !important;">Support</a>
               </p>
-              
-              <p style="margin: 15px 0 0 0; padding-top: 15px; border-top: 1px solid #e2e8f0; color: #94a3b8; font-size: 12px; font-family: 'Archivo', sans-serif;">
-                Vous recevez cet email suite à l'utilisation de vos points fidélité sur aloha-cbd.fr
-              </p>
-              
-              <p style="margin: 10px 0 0 0; color: #94a3b8; font-size: 11px; font-family: 'Archivo', sans-serif;">
-                Aloha CBD - France
-              </p>
+              <p class="text-light-gray" style="margin: 0 !important; color: #718096 !important; font-size: 12px !important; font-family: 'Archivo', -apple-system, sans-serif !important;">© ${new Date().getFullYear()} Aloha CBD. Tous droits réservés.</p>
             </td>
           </tr>
 
@@ -116,7 +165,7 @@ const sendDiscountEmail = async (email, firstName, discountCode, pointsUsed, dis
     await resend.emails.send({
       from: 'Équipe Aloha <contact@noreply.aloha-cbd.fr>',
       to: email,
-      subject: `🎁 Votre code de réduction ${discountValue}€ est prêt !`,
+      subject: `🎁 Ton code de réduction ${discountValue}€ est prêt !`,
       html: emailHtml
     })
     console.log('✅ Email de confirmation envoyé à:', email)
