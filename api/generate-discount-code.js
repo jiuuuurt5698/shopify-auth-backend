@@ -55,8 +55,8 @@ const sendDiscountEmail = async (email, firstName, discountCode, pointsUsed, dis
           <tr>
             <td class="header-section" style="background: linear-gradient(135deg, #BC6170 0%, #9d5260 100%) !important; padding: 24px 40px !important; text-align: center !important;">
               <img src="https://xdkdxtrlldghcwymbttt.supabase.co/storage/v1/object/public/email-assets/SMILEY%202.png" alt="Aloha" style="width: 140px !important; height: 140px !important; margin: 0 auto 12px !important; display: block !important;" />
-              <h2 style="margin: 0 0 6px 0 !important; color: #FAF9F9 !important; font-size: 28px !important; font-weight: 700 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">Ton code est prêt !</h2>
-              <p style="margin: 0 !important; color: #FAF9F9 !important; opacity: 0.85 !important; font-size: 16px !important; font-family: 'Archivo', -apple-system, sans-serif !important;">Merci de ta fidélité ✨</p>
+              <h2 style="margin: 0 0 6px 0 !important; color: #FAF9F9 !important; font-size: 28px !important; font-weight: 700 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">Ton code est prêt</h2>
+              <p style="margin: 0 !important; color: #FAF9F9 !important; opacity: 0.85 !important; font-size: 16px !important; font-family: 'Archivo', -apple-system, sans-serif !important;">Merci de ta fidélité</p>
             </td>
           </tr>
 
@@ -103,22 +103,11 @@ const sendDiscountEmail = async (email, firstName, discountCode, pointsUsed, dis
                 <tr>
                   <td style="padding: 24px !important;">
                     <p style="margin: 0 0 12px 0 !important; color: #22192E !important; font-size: 16px !important; font-weight: 700 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">
-                      💡 Comment l'utiliser ?
+                      Comment l'utiliser ?
                     </p>
-                    <p style="margin: 0 0 20px 0 !important; color: #4a5568 !important; font-size: 14px !important; line-height: 1.6 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">
-                      Copie ton code et colle-le lors de ta prochaine commande pour bénéficier de ta réduction immédiatement !
+                    <p style="margin: 0 !important; color: #4a5568 !important; font-size: 14px !important; line-height: 1.6 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">
+                      Copie ton code et colle-le lors de ta prochaine commande pour bénéficier de ta réduction immédiatement.
                     </p>
-                    
-                    <!-- BOUTON INTÉGRÉ -->
-                    <table role="presentation" style="width: 100% !important; border-collapse: collapse !important;">
-                      <tr>
-                        <td align="center" style="padding: 8px 0 0 0 !important;">
-                          <a href="https://aloha-cbd.fr/collections/all" style="display: inline-block !important; background: #FE7BFF !important; color: #22192E !important; text-decoration: none !important; padding: 16px 40px !important; border-radius: 14px !important; font-size: 16px !important; font-weight: 700 !important; font-family: 'Archivo', -apple-system, sans-serif !important; box-shadow: 0 4px 14px rgba(254, 123, 255, 0.4) !important;">
-                            Utiliser mon code
-                          </a>
-                        </td>
-                      </tr>
-                    </table>
                   </td>
                 </tr>
               </table>
@@ -163,9 +152,9 @@ const sendDiscountEmail = async (email, firstName, discountCode, pointsUsed, dis
 
   try {
     await resend.emails.send({
-      from: 'Équipe Aloha <contact@noreply.aloha-cbd.fr>',
+      from: 'ALOHA CBD <hello@noreply.aloha-cbd.fr>',
       to: email,
-      subject: `🎁 Ton code de réduction ${discountValue}€ est prêt !`,
+      subject: `Ton code de réduction ${discountValue}€ est prêt`,
       html: emailHtml
     })
     console.log('✅ Email de confirmation envoyé à:', email)
