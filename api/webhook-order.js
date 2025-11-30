@@ -10,13 +10,16 @@ const SHOPIFY_WEBHOOK_SECRET = process.env.SHOPIFY_WEBHOOK_SECRET
 // Ratio: 1€ = 0.5 points
 const POINTS_PER_EURO = 0.5
 
-// Définition des paliers
+// ID de la mission "Passer 5 commandes" - REMPLACE PAR TON UUID
+const MISSION_5_COMMANDES_ID = "17af0e71-6e26-4ca1-956d-46f72b67d9cc"
+
+// Définition des paliers (nouveaux seuils)
 const TIERS = [
   { name: 'Bronze', threshold: 0 },
-  { name: 'Argent', threshold: 25 },
-  { name: 'Or', threshold: 100 },
-  { name: 'Diamant', threshold: 300 },
-  { name: 'Maître', threshold: 750 }
+  { name: 'Argent', threshold: 50 },
+  { name: 'Or', threshold: 200 },
+  { name: 'Diamant', threshold: 500 },
+  { name: 'Maître', threshold: 1300 }
 ]
 
 function getCurrentTier(totalPoints) {
@@ -123,6 +126,102 @@ export default async function handler(req, res) {
     if (transactionError) throw transactionError
 
     console.log('✅ Transaction enregistrée')
+
+    // ============================================
+    // MISE À JOUR PROGRESSION MISSION "5 COMMANDES"
+    // ============================================
+    
+    if (MISSION_5_COMMANDES_ID !== "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx") {
+      // Récupérer le customer_id depuis la table customers
+      const { data: customer } = await supabase
+        .from('customers')
+        .select('id')
+        .eq('email', order.email)
+        .maybeSingle()
+
+      if (customer) {
+        // Compter le nombre de commandes (transactions de type 'purchase')
+        const { count: orderCount } = await supabase
+          .from('points_transactions')
+          .select('*', { count: 'exact', head: true })
+          .eq('customer_email', order.email)
+          .eq('transaction_type', 'purchase')
+
+        const currentProgress = orderCount || 1
+        const isCompleted = currentProgress >= 5
+
+        console.log(`📊 Progression mission 5 commandes: ${currentProgress}/5`)
+
+        // Vérifier si la mission existe et n'est pas déjà complétée
+        const { data: existingMission } = await supabase
+          .from('user_missions')
+          .select('status, points_awarded')
+          .eq('user_id', customer.id)
+          .eq('mission_id', MISSION_5_COMMANDES_ID)
+          .maybeSingle()
+
+        // Si déjà complétée avec points attribués, ne rien faire
+        if (existingMission?.status === 'completed' && existingMission?.points_awarded > 0) {
+          console.log('✅ Mission déjà complétée, skip')
+        } else {
+          // Mettre à jour ou créer la progression
+          const { error: missionError } = await supabase
+            .from('user_missions')
+            .upsert({
+              user_id: customer.id,
+              mission_id: MISSION_5_COMMANDES_ID,
+              status: isCompleted ? 'completed' : 'in_progress',
+              current_progress: Math.min(currentProgress, 5),
+              completed_at: isCompleted ? new Date().toISOString() : null,
+              points_awarded: isCompleted ? 100 : 0
+            }, {
+              onConflict: 'user_id,mission_id'
+            })
+
+          if (missionError) {
+            console.error('❌ Erreur mise à jour mission:', missionError)
+          } else {
+            console.log(`✅ Mission mise à jour: ${currentProgress}/5`)
+
+            // Si mission complétée pour la première fois, ajouter les points bonus
+            if (isCompleted && (!existingMission || existingMission.status !== 'completed')) {
+              // Récupérer les points actuels pour mise à jour
+              const { data: currentPoints } = await supabase
+                .from('loyalty_points')
+                .select('points_balance, total_points_earned')
+                .eq('customer_email', order.email)
+                .single()
+
+              if (currentPoints) {
+                const { error: bonusError } = await supabase
+                  .from('loyalty_points')
+                  .update({
+                    points_balance: currentPoints.points_balance + 100,
+                    total_points_earned: currentPoints.total_points_earned + 100
+                  })
+                  .eq('customer_email', order.email)
+
+                if (!bonusError) {
+                  // Enregistrer la transaction de la mission
+                  await supabase
+                    .from('points_transactions')
+                    .insert({
+                      customer_email: order.email,
+                      points: 100,
+                      transaction_type: 'mission',
+                      description: 'Mission complétée : Passer 5 commandes'
+                    })
+
+                  console.log('🎉 +100 points bonus mission 5 commandes!')
+                }
+              }
+            }
+          }
+        }
+      } else {
+        console.log('⚠️ Client non trouvé dans customers, mission non mise à jour')
+      }
+    }
 
     const response = {
       success: true,
