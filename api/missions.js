@@ -184,9 +184,9 @@ export default async function handler(req, res) {
             await supabase
                 .from('points_transactions')
                 .insert({
-                    customer_id: user_id,
+                    customer_email: customer.email,
                     points: mission.points,
-                    type: 'mission',
+                    transaction_type: 'mission',
                     description: `Mission complétée : ${mission.name}`
                 })
 
@@ -275,9 +275,9 @@ export default async function handler(req, res) {
                     await supabase
                         .from('points_transactions')
                         .insert({
-                            customer_id: user_id,
+                            customer_email: customer.email,
                             points: mission.points,
-                            type: 'mission',
+                            transaction_type: 'mission',
                             description: `Mission complétée : ${mission.name}`
                         })
                 }
