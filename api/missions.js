@@ -115,6 +115,17 @@ export default async function handler(req, res) {
                 return res.status(400).json({ error: 'Mission déjà complétée' })
             }
 
+            // Récupérer l'email du customer
+            const { data: customer, error: customerError } = await supabase
+                .from('customers')
+                .select('email')
+                .eq('id', user_id)
+                .single()
+
+            if (customerError || !customer) {
+                return res.status(404).json({ error: 'Client non trouvé' })
+            }
+
             // Créer/mettre à jour user_mission
             const { error: upsertError } = await supabase
                 .from('user_missions')
@@ -133,27 +144,40 @@ export default async function handler(req, res) {
                 throw upsertError
             }
 
-            // Ajouter les points au client
-            const { data: customer, error: customerError } = await supabase
-                .from('customers')
+            // Récupérer les points actuels depuis loyalty_points
+            const { data: loyaltyData, error: loyaltyError } = await supabase
+                .from('loyalty_points')
                 .select('points_balance, total_points_earned')
-                .eq('id', user_id)
+                .eq('customer_email', customer.email)
                 .single()
 
-            if (customerError) {
-                throw customerError
-            }
+            if (loyaltyError || !loyaltyData) {
+                // Si pas de ligne loyalty_points, en créer une
+                const { error: insertError } = await supabase
+                    .from('loyalty_points')
+                    .insert({
+                        customer_email: customer.email,
+                        points_balance: mission.points,
+                        total_points_earned: mission.points,
+                        total_points_spent: 0
+                    })
 
-            const { error: updateError } = await supabase
-                .from('customers')
-                .update({
-                    points_balance: customer.points_balance + mission.points,
-                    total_points_earned: customer.total_points_earned + mission.points
-                })
-                .eq('id', user_id)
+                if (insertError) {
+                    throw insertError
+                }
+            } else {
+                // Mettre à jour les points
+                const { error: updateError } = await supabase
+                    .from('loyalty_points')
+                    .update({
+                        points_balance: loyaltyData.points_balance + mission.points,
+                        total_points_earned: loyaltyData.total_points_earned + mission.points
+                    })
+                    .eq('customer_email', customer.email)
 
-            if (updateError) {
-                throw updateError
+                if (updateError) {
+                    throw updateError
+                }
             }
 
             // Enregistrer la transaction
@@ -199,6 +223,17 @@ export default async function handler(req, res) {
                 return res.status(404).json({ error: 'Mission non trouvée' })
             }
 
+            // Récupérer l'email du customer
+            const { data: customer } = await supabase
+                .from('customers')
+                .select('email')
+                .eq('id', user_id)
+                .single()
+
+            if (!customer) {
+                return res.status(404).json({ error: 'Client non trouvé' })
+            }
+
             // Mettre à jour ou créer la progression
             const newProgress = Math.min(progress, mission.target_count)
             const isCompleted = newProgress >= mission.target_count
@@ -222,20 +257,20 @@ export default async function handler(req, res) {
 
             // Si complétée, ajouter les points
             if (isCompleted) {
-                const { data: customer } = await supabase
-                    .from('customers')
+                const { data: loyaltyData } = await supabase
+                    .from('loyalty_points')
                     .select('points_balance, total_points_earned')
-                    .eq('id', user_id)
+                    .eq('customer_email', customer.email)
                     .single()
 
-                if (customer) {
+                if (loyaltyData) {
                     await supabase
-                        .from('customers')
+                        .from('loyalty_points')
                         .update({
-                            points_balance: customer.points_balance + mission.points,
-                            total_points_earned: customer.total_points_earned + mission.points
+                            points_balance: loyaltyData.points_balance + mission.points,
+                            total_points_earned: loyaltyData.total_points_earned + mission.points
                         })
-                        .eq('id', user_id)
+                        .eq('customer_email', customer.email)
 
                     await supabase
                         .from('points_transactions')
