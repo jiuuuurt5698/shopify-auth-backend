@@ -140,10 +140,10 @@ function getWelcomeEmailHTML() {
     }
     
     @media (prefers-color-scheme: dark) {
-      .email-container { background-color: #FAF9F9 !important; }
-      .email-card { background-color: #FAF9F9 !important; }
+      .email-container { background-color: #FFFFFF !important; }
+      .email-card { background-color: #FFFFFF !important; }
       .header-section { background: linear-gradient(135deg, #BC6170 0%, #9d5260 100%) !important; }
-      .content-section { background-color: #FAF9F9 !important; color: #22192E !important; }
+      .content-section { background-color: #FFFFFF !important; color: #22192E !important; }
       .footer-section { background-color: #EFEDEE !important; }
       .text-dark { color: #22192E !important; }
       .text-gray { color: #4a5568 !important; }
@@ -151,11 +151,11 @@ function getWelcomeEmailHTML() {
     }
   </style>
 </head>
-<body style="margin: 0 !important; padding: 0 !important; font-family: 'Archivo', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important; background-color: #FAF9F9 !important; color-scheme: light only !important;">
-  <table role="presentation" class="email-container" style="width: 100% !important; border-collapse: collapse !important; background-color: #FAF9F9 !important;">
+<body style="margin: 0 !important; padding: 0 !important; font-family: 'Archivo', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important; background-color: #FFFFFF !important; color-scheme: light only !important;">
+  <table role="presentation" class="email-container" style="width: 100% !important; border-collapse: collapse !important; background-color: #FFFFFF !important;">
     <tr>
       <td align="center" style="padding: 40px 20px !important;">
-        <table role="presentation" class="email-card" style="max-width: 600px !important; width: 100% !important; border-collapse: collapse !important; background: #FAF9F9 !important; border-radius: 24px !important; overflow: hidden !important; box-shadow: 0 10px 40px rgba(34, 25, 46, 0.12) !important;">
+        <table role="presentation" class="email-card" style="max-width: 600px !important; width: 100% !important; border-collapse: collapse !important; background: #FFFFFF !important; border-radius: 24px !important; overflow: hidden !important; box-shadow: 0 10px 40px rgba(34, 25, 46, 0.12) !important;">
           
           <!-- HEADER AVEC SMILEY -->
           <tr>
@@ -168,7 +168,7 @@ function getWelcomeEmailHTML() {
 
           <!-- CONTENU PRINCIPAL -->
           <tr>
-            <td class="content-section" style="padding: 48px 40px 24px 40px !important; background-color: #FAF9F9 !important;">
+            <td class="content-section" style="padding: 48px 40px 24px 40px !important; background-color: #FFFFFF !important;">
               <p class="text-dark" style="margin: 0 0 20px 0 !important; color: #22192E !important; font-size: 17px !important; font-family: 'Archivo', -apple-system, sans-serif !important;">
                 Salut,
               </p>
@@ -183,7 +183,7 @@ function getWelcomeEmailHTML() {
 
           <!-- CARTE CODE PROMO -->
           <tr>
-            <td style="padding: 0 24px 24px 24px !important; background-color: #FAF9F9 !important;">
+            <td style="padding: 0 24px 24px 24px !important; background-color: #FFFFFF !important;">
               <table role="presentation" style="width: 100% !important; background: #22192E !important; border-radius: 16px !important;">
                 <tr>
                   <td style="padding: 32px 24px !important; text-align: center !important;">
@@ -204,7 +204,7 @@ function getWelcomeEmailHTML() {
 
           <!-- BOX MÉTÉO DU CHILL -->
           <tr>
-            <td style="padding: 0 24px 24px 24px !important; background-color: #FAF9F9 !important;">
+            <td style="padding: 0 24px 24px 24px !important; background-color: #FFFFFF !important;">
               <table role="presentation" style="width: 100% !important; background: #EFEDEE !important; border-radius: 16px !important;">
                 <tr>
                   <td style="padding: 24px !important;">
@@ -222,8 +222,8 @@ function getWelcomeEmailHTML() {
 
           <!-- IMAGE SOCIAL PREVIEW AVEC BOUTON CENTRÉ -->
           <tr>
-            <td style="padding: 0 24px 24px 24px !important; background-color: #FAF9F9 !important;">
-              <table role="presentation" style="width: 100% !important; border-collapse: collapse !important; background-image: url('https://xdkdxtrlldghcwymbttt.supabase.co/storage/v1/object/public/email-assets/SOCIAL%20PREVIEW.png') !important; background-size: cover !important; background-position: center !important; border-radius: 16px !important; height: 300px !important;">
+            <td style="padding: 0 24px 24px 24px !important; background-color: #FFFFFF !important;">
+              <table role="presentation" style="width: 100% !important; border-collapse: collapse !important; background-image: url('https://xdkdxtrlldghcwymbttt.supabase.co/storage/v1/object/public/email-assets/SOCIAL%20PREVIEWv2.png') !important; background-size: cover !important; background-position: center !important; border-radius: 16px !important; height: 300px !important;">
                 <tr>
                   <td align="center" valign="middle" style="height: 300px !important;">
                     <a href="https://aloha-cbd.fr" style="display: inline-block !important; background: #22192E !important; color: #FAF9F9 !important; text-decoration: none !important; padding: 16px 40px !important; border-radius: 14px !important; font-size: 16px !important; font-weight: 700 !important; font-family: 'Archivo', -apple-system, sans-serif !important; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;">
