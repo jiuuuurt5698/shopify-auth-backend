@@ -89,7 +89,7 @@ export default async function handler(req, res) {
             body: JSON.stringify({
                 from: "ALOHA CBD <hello@noreply.aloha-cbd.fr>",
                 to: cleanEmail,
-                subject: "Bienvenue dans l'ohana 🌺 Ton code -10%",
+                subject: "Bienvenue dans l'ohana - Ton code -10%",
                 html: getWelcomeEmailHTML(),
             }),
         })
@@ -102,7 +102,7 @@ export default async function handler(req, res) {
         }
 
         // Succès
-        console.log(`✅ New subscriber: ${cleanEmail}`)
+        console.log(`New subscriber: ${cleanEmail}`)
 
         return res.status(200).json({
             success: true,
@@ -112,7 +112,7 @@ export default async function handler(req, res) {
         })
 
     } catch (error) {
-        console.error("❌ Newsletter API error:", error)
+        console.error("Newsletter API error:", error)
         return res.status(500).json({ error: "Internal server error" })
     }
 }
@@ -134,15 +134,13 @@ function getWelcomeEmailHTML() {
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap');
     
-    /* Force light mode */
     :root {
       color-scheme: light only !important;
       supported-color-schemes: light !important;
     }
     
-    /* Protection dark mode pour tous les clients */
     @media (prefers-color-scheme: dark) {
-      .email-container { background-color: #EACDC2 !important; }
+      .email-container { background-color: #FAF9F9 !important; }
       .email-card { background-color: #FAF9F9 !important; }
       .header-section { background: linear-gradient(135deg, #BC6170 0%, #9d5260 100%) !important; }
       .content-section { background-color: #FAF9F9 !important; color: #22192E !important; }
@@ -153,8 +151,8 @@ function getWelcomeEmailHTML() {
     }
   </style>
 </head>
-<body style="margin: 0 !important; padding: 0 !important; font-family: 'Archivo', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important; background-color: #EACDC2 !important; color-scheme: light only !important;">
-  <table role="presentation" class="email-container" style="width: 100% !important; border-collapse: collapse !important; background-color: #EACDC2 !important;">
+<body style="margin: 0 !important; padding: 0 !important; font-family: 'Archivo', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important; background-color: #FAF9F9 !important; color-scheme: light only !important;">
+  <table role="presentation" class="email-container" style="width: 100% !important; border-collapse: collapse !important; background-color: #FAF9F9 !important;">
     <tr>
       <td align="center" style="padding: 40px 20px !important;">
         <table role="presentation" class="email-card" style="max-width: 600px !important; width: 100% !important; border-collapse: collapse !important; background: #FAF9F9 !important; border-radius: 24px !important; overflow: hidden !important; box-shadow: 0 10px 40px rgba(34, 25, 46, 0.12) !important;">
@@ -164,7 +162,7 @@ function getWelcomeEmailHTML() {
             <td class="header-section" style="background: linear-gradient(135deg, #BC6170 0%, #9d5260 100%) !important; padding: 24px 40px !important; text-align: center !important;">
               <img src="https://xdkdxtrlldghcwymbttt.supabase.co/storage/v1/object/public/email-assets/SMILEY%202.png" alt="Aloha" style="width: 140px !important; height: 140px !important; margin: 0 auto 12px !important; display: block !important;" />
               <h2 style="margin: 0 0 6px 0 !important; color: #FAF9F9 !important; font-size: 28px !important; font-weight: 700 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">Bienvenue dans l'ohana</h2>
-              <p style="margin: 0 !important; color: #FAF9F9 !important; opacity: 0.85 !important; font-size: 16px !important; font-family: 'Archivo', -apple-system, sans-serif !important;">Tu fais maintenant partie de la famille 🌺</p>
+              <p style="margin: 0 !important; color: #FAF9F9 !important; opacity: 0.85 !important; font-size: 16px !important; font-family: 'Archivo', -apple-system, sans-serif !important;">Tu fais maintenant partie de la famille</p>
             </td>
           </tr>
 
@@ -172,10 +170,10 @@ function getWelcomeEmailHTML() {
           <tr>
             <td class="content-section" style="padding: 48px 40px 24px 40px !important; background-color: #FAF9F9 !important;">
               <p class="text-dark" style="margin: 0 0 20px 0 !important; color: #22192E !important; font-size: 17px !important; font-family: 'Archivo', -apple-system, sans-serif !important;">
-                Salut 👋
+                Salut,
               </p>
               <p class="text-gray" style="margin: 0 0 24px 0 !important; color: #4a5568 !important; font-size: 16px !important; line-height: 1.6 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">
-                Merci de nous rejoindre ! Chaque semaine, tu recevras ta <strong style="color: #BC6170 !important;">météo du chill</strong> : des promos exclusives et une dose de bonnes nouvelles pour garder le smile.
+                Merci de nous rejoindre. Chaque semaine, tu recevras ta <strong style="color: #BC6170 !important;">météo du chill</strong> : des promos exclusives et une dose de bonnes nouvelles pour garder le smile.
               </p>
               <p class="text-gray" style="margin: 0 0 24px 0 !important; color: #4a5568 !important; font-size: 16px !important; line-height: 1.6 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">
                 Pour te souhaiter la bienvenue, voici un petit cadeau :
@@ -211,7 +209,7 @@ function getWelcomeEmailHTML() {
                 <tr>
                   <td style="padding: 24px !important;">
                     <p style="margin: 0 0 12px 0 !important; color: #22192E !important; font-size: 16px !important; font-weight: 700 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">
-                      🌤️ C'est quoi la météo du chill ?
+                      C'est quoi la météo du chill ?
                     </p>
                     <p style="margin: 0 !important; color: #4a5568 !important; font-size: 14px !important; line-height: 1.6 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">
                       Des promos qui claquent, des news qui réchauffent. On t'envoie du lourd et du love, sans spam. Promis.
@@ -240,7 +238,7 @@ function getWelcomeEmailHTML() {
           <!-- FOOTER -->
           <tr>
             <td class="footer-section" style="padding: 32px 40px !important; text-align: center !important; background: #EFEDEE !important;">
-              <p class="text-dark" style="margin: 0 0 16px 0 !important; color: #22192E !important; font-size: 16px !important; font-weight: 600 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">L'équipe Aloha 🤙</p>
+              <p class="text-dark" style="margin: 0 0 16px 0 !important; color: #22192E !important; font-size: 16px !important; font-weight: 600 !important; font-family: 'Archivo', -apple-system, sans-serif !important;">L'équipe Aloha</p>
               <p style="margin: 0 0 16px 0 !important; font-size: 14px !important; font-family: 'Archivo', -apple-system, sans-serif !important;">
                 <a href="https://aloha-cbd.fr" style="color: #22192E !important; text-decoration: none !important; margin: 0 10px !important; font-weight: 500 !important;">Boutique</a>
                 <span style="color: #BC6170 !important;">•</span>
